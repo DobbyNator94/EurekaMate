@@ -8,7 +8,7 @@
       "chipFamily": "ESP32-S3",
       "parts": [
         {
-          "path": "firmware/firmware.bin",
+          "path": "firmware/smart-grind-by-weight.bin",
           "offset": 0
         }
       ]

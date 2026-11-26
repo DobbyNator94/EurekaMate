@@ -170,4 +170,48 @@ void tmc_current_scale(float rms_ma, float rsense_ohm, uint8_t& cs, bool& vsense
 // Build an 8-byte write datagram.
 void tmc_write_datagram(uint8_t addr, uint8_t reg, uint32_t value, uint8_t out[8]);
 
+// ---------------------------------------------------------------------------
+// Multi-portion recipes (e.g. filter: 3 dosing turns before the brew).
+// Each completed grind adds a portion; the recipe counts as "ground" (report to
+// GaggiMate, start the shot link) only after the last portion.
+// ---------------------------------------------------------------------------
+struct PortionCounter {
+    uint8_t total = 1;      // portions per recipe (1..MAX_PORTIONS)
+    uint8_t done = 0;
+    float dose_sum_g = 0.0f;
+    static constexpr uint8_t MAX_PORTIONS = 10;
+
+    void start(uint8_t portions);          // clamps to 1..MAX_PORTIONS, resets progress
+    // Returns true when this grind completed the recipe (then the counter resets).
+    bool add(float dose_g, float* total_dose_g = nullptr);
+    void reset() { done = 0; dose_sum_g = 0.0f; }
+};
+
+// ---------------------------------------------------------------------------
+// Future 4-bean hopper: map a hopper slot (0..n-1, from a slot sensor) to the
+// recipe that has it assigned. Returns the recipe index or -1.
+// hopper_slot_of_recipe[i] = slot of recipe i, or -1 if the recipe has none.
+// ---------------------------------------------------------------------------
+int recipe_for_hopper_slot(const int8_t* hopper_slot_of_recipe, int recipe_count, int slot);
+
+// ---------------------------------------------------------------------------
+// Interlocks
+//  * grinder_start_allowed: the grinder motor must never start while the dial
+//    stepper moves or has a move queued.
+//  * dose_allowed: (future hopper / dosing gate) beans may only be released to
+//    the burrs once the grind-setting move is COMPLETE and the position is
+//    confirmed (calibrated + trusted, not calibrating, no stall).
+// ---------------------------------------------------------------------------
+struct InterlockInputs {
+    bool motor_present = true;  // dial drive initialised
+    bool moving = false;
+    bool move_pending = false;  // command queued but not started
+    bool calibrated = false;
+    bool position_trusted = false;
+    bool calibrating = false;
+    bool stalled = false;
+};
+bool grinder_start_allowed(const InterlockInputs& in);
+bool dose_allowed(const InterlockInputs& in);
+
 }  // namespace gbs

@@ -12,7 +12,7 @@ GrindSync grind_sync;
 
 namespace {
 constexpr const char* NVS_NS = "gbs";
-constexpr const char* DEVICE_HOSTNAME = "smart-grind-sync";
+constexpr const char* DEVICE_HOSTNAME = "eurekamate";
 constexpr uint32_t WIFI_RETRY_MS = 15000;
 constexpr uint32_t RESOLVE_REFRESH_MS = 5UL * 60UL * 1000UL;
 
@@ -77,9 +77,12 @@ void GrindSync::load_config() {
         snprintf(k, sizeof(k), "r%dt", i);  cfg_.recipe[i].target_time_s = prefs_.getFloat(k, SYNC_DEFAULT_TARGET_TIME_S);
         snprintf(k, sizeof(k), "r%dw", i);  cfg_.recipe[i].brew_weight_g = prefs_.getFloat(k, 0.0f);
         snprintf(k, sizeof(k), "r%ds", i);  cfg_.recipe[i].start_setting = prefs_.getFloat(k, i == 3 ? 60.0f : NAN);
+        snprintf(k, sizeof(k), "r%dh", i);  cfg_.recipe[i].hopper_slot = static_cast<int8_t>(prefs_.getChar(k, -1));
+        snprintf(k, sizeof(k), "r%dp", i);  cfg_.recipe[i].portions = prefs_.getUChar(k, 1);
     }
     String host = prefs_.getString("host", SYNC_DEFAULT_HOST);
     strlcpy(cfg_.host, host.c_str(), sizeof(cfg_.host));
+    cfg_.hopper_enabled = prefs_.getBool("hopper", false);
 }
 
 void GrindSync::save_config() {
@@ -94,6 +97,7 @@ void GrindSync::save_config() {
     prefs_.putFloat("gain", cfg_.reg.gain_per_s);
     prefs_.putFloat("maxstep", cfg_.reg.max_step);
     prefs_.putString("host", cfg_.host);
+    prefs_.putBool("hopper", cfg_.hopper_enabled);
     for (int i = 0; i < SYNC_RECIPE_SLOTS; i++) {
         char k[8];
         snprintf(k, sizeof(k), "r%dn", i);  prefs_.putString(k, cfg_.recipe[i].name);
@@ -101,6 +105,8 @@ void GrindSync::save_config() {
         snprintf(k, sizeof(k), "r%dt", i);  prefs_.putFloat(k, cfg_.recipe[i].target_time_s);
         snprintf(k, sizeof(k), "r%dw", i);  prefs_.putFloat(k, cfg_.recipe[i].brew_weight_g);
         snprintf(k, sizeof(k), "r%ds", i);  prefs_.putFloat(k, cfg_.recipe[i].start_setting);
+        snprintf(k, sizeof(k), "r%dh", i);  prefs_.putChar(k, cfg_.recipe[i].hopper_slot);
+        snprintf(k, sizeof(k), "r%dp", i);  prefs_.putUChar(k, cfg_.recipe[i].portions);
     }
 }
 
@@ -123,6 +129,9 @@ void GrindSync::set_config(const Config& c) {
         if (r.target_time_s > 60.0f) r.target_time_s = 60.0f;
         if (r.brew_weight_g < 0.0f || r.brew_weight_g > 120.0f) r.brew_weight_g = 0.0f;
         if (!isnan(r.start_setting) && (r.start_setting < 0.0f || r.start_setting > 100.0f)) r.start_setting = NAN;
+        if (r.hopper_slot < -1 || r.hopper_slot >= SYNC_HOPPER_SLOTS) r.hopper_slot = -1;
+        if (r.portions < 1) r.portions = 1;
+        if (r.portions > SYNC_MAX_PORTIONS) r.portions = SYNC_MAX_PORTIONS;
     }
     save_config();
     if (host_changed) { identity_checked_ = false; last_resolve_ms_ = 0; machine_addr_ = IPAddress(); }
@@ -132,6 +141,8 @@ void GrindSync::set_config(const Config& c) {
 GrindSync::Status GrindSync::status() {
     Lock l(mutex_);
     st_.active_recipe = active_recipe_;
+    st_.hopper_slot = -1;
+    st_.portion_total = 1;
     return st_;
 }
 
@@ -142,9 +153,64 @@ bool GrindSync::has_wifi_credentials() {
 
 void GrindSync::notify_grind_completed(int profile, float dose_g) {
     (void)profile;  // the active recipe (profile 1-3 or a preset 4-6) is what was ground
-    grind_profile_ = active_recipe_;
-    grind_dose_ = dose_g;
+    const int r = active_recipe_;
+    float total = dose_g;
+    {
+        Lock l(mutex_);
+        // multi-portion recipes (e.g. filter): only the last portion completes the recipe
+        if (portions_recipe_ != r) {
+            portions_.start(r >= 0 && r < SYNC_RECIPE_SLOTS ? cfg_.recipe[r].portions : 1);
+            portions_recipe_ = r;
+        }
+        const bool complete = portions_.add(dose_g, &total);
+        st_.portion_total = portions_.total;
+        st_.portion_done = complete ? portions_.total : portions_.done;
+        if (!complete) return;
+    }
+    grind_profile_ = r;
+    grind_dose_ = total;
     grind_done_flag_ = true;
+}
+
+bool GrindSync::dose_allowed() { return dial_motor.dose_allowed(); }
+
+void GrindSync::reset_portions() {
+    Lock l(mutex_);
+    portions_.reset();
+    portions_recipe_ = -1;
+    st_.portion_done = 0;
+}
+
+void GrindSync::on_hopper_slot_changed(int slot) {
+    int recipe = -1;
+    {
+        Lock l(mutex_);
+        st_.hopper_slot = static_cast<int8_t>(slot);
+        if (!cfg_.hopper_enabled || slot < 0) return;
+        int8_t map[SYNC_RECIPE_SLOTS];
+        for (int i = 0; i < SYNC_RECIPE_SLOTS; i++) map[i] = cfg_.recipe[i].hopper_slot;
+        recipe = gbs::recipe_for_hopper_slot(map, SYNC_RECIPE_SLOTS, slot);
+    }
+    if (recipe >= 0 && recipe != active_recipe_) select_recipe(recipe);
+}
+
+// Reserved for the 4-bean hopper: reads SYNC_HOPPER_SENSOR_PINS (active LOW).
+// With all pins = -1 (default) this does nothing.
+void GrindSync::poll_hopper_sensors() {
+    static const int pins[SYNC_HOPPER_SLOTS] = SYNC_HOPPER_SENSOR_PINS;
+    static bool configured = false, any = false;
+    if (!configured) {
+        configured = true;
+        for (int i = 0; i < SYNC_HOPPER_SLOTS; i++)
+            if (pins[i] >= 0) { pinMode(pins[i], INPUT_PULLUP); any = true; }
+    }
+    if (!any) return;
+    int8_t slot = -1;
+    for (int i = 0; i < SYNC_HOPPER_SLOTS; i++)
+        if (pins[i] >= 0 && digitalRead(pins[i]) == LOW) { slot = static_cast<int8_t>(i); break; }
+    const uint32_t now = millis();
+    if (slot != hopper_raw_) { hopper_raw_ = slot; hopper_change_ms_ = now; return; }
+    if (now - hopper_change_ms_ >= SYNC_HOPPER_DEBOUNCE_MS && st_.hopper_slot != slot) on_hopper_slot_changed(slot);
 }
 
 void GrindSync::request_brew_start() { brew_req_ = true; }
@@ -181,6 +247,7 @@ void GrindSync::task_loop() {
             if (down) request_brew_start();
         }
 #endif
+        poll_hopper_sensors();  // reserved 4-bean hopper (no-op while no pins are configured)
         if (portal_req_ || portal_stop_req_ || st_.portal_active) portal_loop();
 
         bool enabled;
@@ -303,6 +370,13 @@ bool GrindSync::resolve_host(IPAddress& out) {
     }
     char host[64];
     { Lock l(mutex_); strlcpy(host, cfg_.host, sizeof(host)); }
+    // optional ":port" suffix (bench tests against tools/mock_gaggimate.py)
+    machine_port_ = 80;
+    if (char* colon = strrchr(host, ':')) {
+        const long p = strtol(colon + 1, nullptr, 10);
+        if (p > 0 && p < 65536) machine_port_ = static_cast<uint16_t>(p);
+        *colon = '\0';
+    }
     IPAddress ip;
     bool ok = ip.fromString(host);
     if (!ok) {
@@ -332,7 +406,7 @@ bool GrindSync::http_get(const char* path, String& body) {
     HTTPClient http;
     http.setTimeout(SYNC_HTTP_TIMEOUT_MS);
     http.setConnectTimeout(SYNC_HTTP_TIMEOUT_MS);
-    if (!http.begin(client, ip.toString(), 80, path)) return false;
+    if (!http.begin(client, ip.toString(), machine_port_, path)) return false;
     const int code = http.GET();
     if (code == 200) body = http.getString();
     http.end();
@@ -346,7 +420,7 @@ bool GrindSync::http_post(const char* path, const char* body) {
     HTTPClient http;
     http.setTimeout(SYNC_HTTP_TIMEOUT_MS);
     http.setConnectTimeout(SYNC_HTTP_TIMEOUT_MS);
-    if (!http.begin(client, ip.toString(), 80, path)) return false;
+    if (!http.begin(client, ip.toString(), machine_port_, path)) return false;
     http.addHeader("Content-Type", "application/json");
     const int code = http.POST(reinterpret_cast<uint8_t*>(const_cast<char*>(body)), strlen(body));
     http.end();
@@ -629,10 +703,8 @@ void GrindSync::portal_loop() {
     }
     if (portal_req_ && !st_.portal_active) {
         portal_req_ = false;
-        uint8_t mac[6];
-        WiFi.macAddress(mac);
         char ssid[33];
-        snprintf(ssid, sizeof(ssid), "SmartGrind-Setup-%02X%02X", mac[4], mac[5]);
+        strlcpy(ssid, "EurekaMate-Setup", sizeof(ssid));
         char pass[12];
         snprintf(pass, sizeof(pass), "%08lu", static_cast<unsigned long>(esp_random() % 100000000UL));
         WiFi.mode(WIFI_AP_STA);

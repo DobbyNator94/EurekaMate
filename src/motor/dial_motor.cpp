@@ -354,13 +354,18 @@ void DialMotor::task_loop() {
     }
     Cmd cmd;
     for (;;) {
-        if (xQueueReceive(queue_, &cmd, pdMS_TO_TICKS(500)) != pdTRUE) continue;
+        // Peek first so the interlock never sees "queue empty + not moving" while a
+        // command is being taken over (no gap between queued and executing).
+        if (xQueuePeek(queue_, &cmd, pdMS_TO_TICKS(500)) != pdTRUE) continue;
+        cmd_active_ = true;
+        if (xQueueReceive(queue_, &cmd, 0) != pdTRUE) { cmd_active_ = false; continue; }
         stop_req_ = false;
         switch (cmd.type) {
             case CmdType::MoveAbs: do_move(cmd.target, cmd.raw, cmd.fast); break;
             case CmdType::Home: do_home(); break;
             case CmdType::ApplyDriver: configure_driver(); break;
         }
+        cmd_active_ = false;
     }
 }
 
@@ -642,6 +647,23 @@ void DialMotor::trust_position() {
     prefs_.putBool("trusted", true);
 }
 
+bool DialMotor::move_pending() const {
+    if (!initialized_) return false;
+    return moving_ || cmd_active_ || (queue_ && uxQueueMessagesWaiting(queue_) > 0);
+}
+
+gbs::InterlockInputs DialMotor::interlock_inputs() const {
+    gbs::InterlockInputs in;
+    in.motor_present = initialized_;
+    in.moving = moving_;
+    in.move_pending = move_pending();
+    in.calibrated = cal_.valid;
+    in.position_trusted = trusted_;
+    in.calibrating = calibrating_;
+    in.stalled = stalled_;
+    return in;
+}
+
 DialMotor::Status DialMotor::status() {
     Lock l(mutex_);
     Status s{};
@@ -666,6 +688,8 @@ DialMotor::Status DialMotor::status() {
     s.coarse_steps = cal_.coarse_steps;
     s.last_error = last_error_;
     s.target_setting = cal_.valid ? cal_.steps_to_setting(final_target_) : NAN;
+    s.dose_allowed = dose_allowed();
+    s.grinder_start_allowed = grinder_start_allowed();
     if (moving_ && move_total_steps_ > 0) {
         const uint32_t done = move_done_before_leg_ + steps_done_;
         s.progress_pct = static_cast<uint8_t>(done >= move_total_steps_ ? 100 : (100ULL * done) / move_total_steps_);

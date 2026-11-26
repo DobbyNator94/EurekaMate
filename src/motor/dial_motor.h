@@ -65,6 +65,8 @@ public:
         uint8_t progress_pct;      // of the current move
         uint32_t eta_ms;           // remaining time estimate
         float target_setting;      // NAN if unknown
+        bool dose_allowed;         // interlock: setting reached + confirmed, no move pending
+        bool grinder_start_allowed;
     };
 
     void init();
@@ -96,6 +98,13 @@ public:
     Settings settings();
     bool apply_settings(const Settings& s);
     bool is_moving() const { return moving_; }
+    // moving or a move command is queued (thread-safe, cheap)
+    bool move_pending() const;
+    // Interlock snapshot (see gbs::grinder_start_allowed / gbs::dose_allowed)
+    gbs::InterlockInputs interlock_inputs() const;
+    bool grinder_start_allowed() const { return gbs::grinder_start_allowed(interlock_inputs()); }
+    // Future hopper/dosing gate: true only when the setting move is complete and confirmed
+    bool dose_allowed() const { return gbs::dose_allowed(interlock_inputs()); }
 
 private:
     enum class CmdType : uint8_t { MoveAbs, Home, ApplyDriver };
@@ -147,6 +156,7 @@ private:
     volatile int32_t leg_target_ = 0;
     volatile int8_t dir_ = 1;
     volatile bool moving_ = false;
+    volatile bool cmd_active_ = false;   // a dequeued command is executing
     volatile bool stop_req_ = false;
     volatile bool homing_ = false;
     volatile bool endstop_hit_ = false;

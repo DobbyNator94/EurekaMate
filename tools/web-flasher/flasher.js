@@ -30,7 +30,8 @@ const BLE_OTA_RECEIVING = 0x02;
 const BLE_OTA_SUCCESS = 0x03;
 const BLE_OTA_ERROR = 0x04;
 
-const DEVICE_NAME = 'GrindByWeight';
+const DEVICE_NAME = 'EurekaMate';
+const LEGACY_DEVICE_NAME = 'GrindByWeight'; // upstream smart-grind-by-weight firmware
 const CHUNK_SIZE = 512; // Browser BLE limit - cannot exceed 512 bytes per write
 
 // Global state
@@ -195,7 +196,7 @@ async function connectDevice() {
         updateStatus('Scanning for device...', 'info');
 
         device = await navigator.bluetooth.requestDevice({
-            filters: [{ name: DEVICE_NAME }],
+            filters: [{ name: DEVICE_NAME }, { name: LEGACY_DEVICE_NAME }],
             optionalServices: [BLE_OTA_SERVICE_UUID]
         });
 
@@ -582,7 +583,7 @@ async function getDiagnosticReport() {
 
         // Request device
         device = await navigator.bluetooth.requestDevice({
-            filters: [{ name: DEVICE_NAME }],
+            filters: [{ name: DEVICE_NAME }, { name: LEGACY_DEVICE_NAME }],
             optionalServices: [BLE_OTA_SERVICE_UUID, BLE_DEBUG_SERVICE_UUID, BLE_SYSINFO_SERVICE_UUID]
         });
 

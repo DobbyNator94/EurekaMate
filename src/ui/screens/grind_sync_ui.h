@@ -13,6 +13,7 @@ class GrindSyncUI {
 public:
     void create(lv_obj_t* menu, lv_obj_t* main_page);
     void attach_ready_chip(lv_obj_t* ready_screen);
+    void show_splash(uint32_t duration_ms = 2200);  // EurekaMate boot splash on the top layer
     void apply_from_widgets();  // push switch/slider state into GrindSync config
 
 private:

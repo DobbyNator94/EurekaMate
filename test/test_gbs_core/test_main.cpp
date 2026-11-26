@@ -248,8 +248,65 @@ void test_tmc_current_scale() {
     TEST_ASSERT_FALSE(vs);
 }
 
+
+void test_portions_single() {
+    gbs::PortionCounter pc;
+    pc.start(1);
+    float total = 0;
+    TEST_ASSERT_TRUE(pc.add(18.0f, &total));
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 18.0f, total);
+}
+
+void test_portions_multi() {
+    gbs::PortionCounter pc;
+    pc.start(3);
+    float total = 0;
+    TEST_ASSERT_FALSE(pc.add(20.0f, &total));
+    TEST_ASSERT_FALSE(pc.add(20.0f, &total));
+    TEST_ASSERT_TRUE(pc.add(20.5f, &total));
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 60.5f, total);
+    TEST_ASSERT_EQUAL_UINT8(0, pc.done);          // resets for the next recipe
+    pc.start(0);  TEST_ASSERT_EQUAL_UINT8(1, pc.total);
+    pc.start(99); TEST_ASSERT_EQUAL_UINT8(gbs::PortionCounter::MAX_PORTIONS, pc.total);
+}
+
+void test_hopper_mapping() {
+    const int8_t map[6] = {-1, 0, -1, 2, 3, -1};
+    TEST_ASSERT_EQUAL_INT(1, gbs::recipe_for_hopper_slot(map, 6, 0));
+    TEST_ASSERT_EQUAL_INT(-1, gbs::recipe_for_hopper_slot(map, 6, 1));
+    TEST_ASSERT_EQUAL_INT(3, gbs::recipe_for_hopper_slot(map, 6, 2));
+    TEST_ASSERT_EQUAL_INT(4, gbs::recipe_for_hopper_slot(map, 6, 3));
+    TEST_ASSERT_EQUAL_INT(-1, gbs::recipe_for_hopper_slot(map, 6, -1));
+}
+
+
+void test_interlocks() {
+    gbs::InterlockInputs in;
+    in.calibrated = true; in.position_trusted = true;
+    TEST_ASSERT_TRUE(gbs::grinder_start_allowed(in));
+    TEST_ASSERT_TRUE(gbs::dose_allowed(in));
+    in.moving = true;
+    TEST_ASSERT_FALSE(gbs::grinder_start_allowed(in));
+    TEST_ASSERT_FALSE(gbs::dose_allowed(in));
+    in.moving = false; in.move_pending = true;
+    TEST_ASSERT_FALSE(gbs::grinder_start_allowed(in));
+    TEST_ASSERT_FALSE(gbs::dose_allowed(in));
+    in.move_pending = false; in.position_trusted = false;     // position unconfirmed
+    TEST_ASSERT_TRUE(gbs::grinder_start_allowed(in));
+    TEST_ASSERT_FALSE(gbs::dose_allowed(in));
+    in.position_trusted = true; in.stalled = true;
+    TEST_ASSERT_FALSE(gbs::dose_allowed(in));
+    gbs::InterlockInputs none; none.motor_present = false;
+    TEST_ASSERT_TRUE(gbs::grinder_start_allowed(none));
+    TEST_ASSERT_FALSE(gbs::dose_allowed(none));
+}
+
 int main(int, char**) {
     UNITY_BEGIN();
+    RUN_TEST(test_portions_single);
+    RUN_TEST(test_portions_multi);
+    RUN_TEST(test_hopper_mapping);
+    RUN_TEST(test_interlocks);
     RUN_TEST(test_too_fast_goes_finer);
     RUN_TEST(test_too_slow_goes_coarser);
     RUN_TEST(test_deadband);

@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <math.h>
 #include "../../config/constants.h"
+#include "../../config/build_info.h"
 #include "../../config/grind_sync.h"
 #include "../../motor/dial_motor.h"
 #include "../../sync/grind_sync.h"
@@ -450,6 +451,13 @@ void GrindSyncUI::refresh() {
             snprintf(buf, sizeof(buf), "to %.1f  -  %u%%  -  %.1f s", isnan(d.target_setting) ? 0.0f : d.target_setting,
                      d.progress_pct, d.eta_ms / 1000.0f);
             lv_label_set_text(progress_label_, buf);
+        } else if (s.portion_total > 1 && s.portion_done > 0 && s.portion_done < s.portion_total) {
+            // multi-portion recipe in progress (e.g. filter 3x)
+            lv_obj_clear_flag(progress_, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(progress_label_, LV_OBJ_FLAG_HIDDEN);
+            lv_bar_set_value(progress_, s.portion_done * 100 / s.portion_total, LV_ANIM_OFF);
+            snprintf(buf, sizeof(buf), "Portion %u/%u  -  grind again", s.portion_done, s.portion_total);
+            lv_label_set_text(progress_label_, buf);
         } else {
             lv_obj_add_flag(progress_, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(progress_label_, LV_OBJ_FLAG_HIDDEN);
@@ -562,7 +570,7 @@ void GrindSyncUI::refresh() {
     // network
     if (net_label_) {
         if (s.wifi_connected)
-            snprintf(buf, sizeof(buf), "WiFi: %s\nhttp://smart-grind-sync.local\nGaggiMate: %s", s.ip,
+            snprintf(buf, sizeof(buf), "WiFi: %s\nhttp://eurekamate.local\nGaggiMate: %s", s.ip,
                      s.machine_seen ? (s.machine_ip[0] ? s.machine_ip : "ok") : cfg.host);
         else snprintf(buf, sizeof(buf), "%s", cfg.enabled ? "WiFi not connected" : "Sync is off (Grind Sync page)");
         lv_label_set_text(net_label_, buf);
@@ -584,4 +592,56 @@ void GrindSyncUI::refresh() {
             lv_obj_set_style_text_color(chip_label_, c(s.machine_seen ? THEME_COLOR_TEXT_PRIMARY : THEME_COLOR_TEXT_SECONDARY), 0);
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// EurekaMate boot splash (top layer, removes itself)
+// ---------------------------------------------------------------------------
+void GrindSyncUI::show_splash(uint32_t duration_ms) {
+    lv_obj_t* s = lv_obj_create(lv_layer_top());
+    lv_obj_remove_style_all(s);
+    lv_obj_set_size(s, LV_PCT(100), LV_PCT(100));
+    lv_obj_set_style_bg_color(s, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_bg_opa(s, LV_OPA_COVER, 0);
+    lv_obj_clear_flag(s, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(s, LV_OBJ_FLAG_CLICKABLE);  // swallow touches while visible
+
+    lv_obj_t* ring = lv_arc_create(s);
+    lv_obj_set_size(ring, 190, 190);
+    lv_arc_set_bg_angles(ring, 0, 360);
+    lv_arc_set_value(ring, 72);
+    lv_obj_remove_style(ring, nullptr, LV_PART_KNOB);
+    lv_obj_clear_flag(ring, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_style_arc_color(ring, lv_color_hex(0x26262C), LV_PART_MAIN);
+    lv_obj_set_style_arc_color(ring, lv_color_hex(THEME_COLOR_ACCENT), LV_PART_INDICATOR);
+    lv_obj_set_style_arc_width(ring, 10, LV_PART_MAIN);
+    lv_obj_set_style_arc_width(ring, 10, LV_PART_INDICATOR);
+    lv_obj_align(ring, LV_ALIGN_CENTER, 0, -60);
+
+    lv_obj_t* title = lv_label_create(s);
+    lv_label_set_text(title, "Eureka\nMate");
+    lv_obj_set_style_text_align(title, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_font(title, &lv_font_montserrat_36, 0);
+    lv_obj_set_style_text_color(title, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_align_to(title, ring, LV_ALIGN_CENTER, 0, 0);
+
+    lv_obj_t* sub = lv_label_create(s);
+    lv_label_set_text(sub, "Grind-by-Sync for GaggiMate");
+    lv_obj_set_style_text_font(sub, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_color(sub, lv_color_hex(THEME_COLOR_ACCENT), 0);
+    lv_obj_align(sub, LV_ALIGN_CENTER, 0, 70);
+
+    lv_obj_t* credit = lv_label_create(s);
+    lv_label_set_text(credit, "based on smart-grind-by-weight\nby jaapp  -  GPLv3\nv" BUILD_FIRMWARE_VERSION);
+    lv_obj_set_style_text_align(credit, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_font(credit, &lv_font_montserrat_14, 0);
+    lv_obj_set_style_text_color(credit, lv_color_hex(0x8A8A94), 0);
+    lv_obj_align(credit, LV_ALIGN_BOTTOM_MID, 0, -40);
+
+    lv_timer_t* t = lv_timer_create([](lv_timer_t* tm) {
+        lv_obj_t* obj = static_cast<lv_obj_t*>(lv_timer_get_user_data(tm));
+        lv_obj_delete(obj);
+        lv_timer_delete(tm);
+    }, duration_ms, s);
+    lv_timer_set_repeat_count(t, 1);
 }

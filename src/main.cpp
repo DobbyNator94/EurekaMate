@@ -29,8 +29,12 @@ BluetoothManager& bluetooth_manager = g_bluetooth_manager;
 static bool grinder_busy() {
     return grind_controller.is_active() || hardware_manager.get_grinder()->is_grinding();
 }
+// Interlock 1 (soft): a grind is not started while the dial moves or has a move queued.
+static bool grind_start_gate() { return dial_motor.grinder_start_allowed(); }
+// Interlock 2 (hard, every relay start incl. pulses/purge): if the dial still moves,
+// stop it before the grinder motor may run - the motor never runs during a dial move.
 static void dial_interlock_before_motor_start() {
-    dial_motor.stop_and_wait(50);
+    if (dial_motor.move_pending()) dial_motor.stop_and_wait(50);
 }
 static void on_grind_completed(GrindMode mode, float final_weight, float target_weight) {
     (void)target_weight;
@@ -98,6 +102,7 @@ void setup() {
     dial_motor.set_busy_predicate(grinder_busy);
     dial_motor.init();
     grind_controller.set_completion_hook(on_grind_completed);
+    grind_controller.set_start_gate(grind_start_gate);
     grind_sync.set_profile_provider(current_profile_index);
     grind_sync.init();
     sync_web.init();

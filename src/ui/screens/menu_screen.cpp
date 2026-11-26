@@ -243,6 +243,8 @@ void MenuScreen::create_info_page(lv_obj_t* parent) {
 
     create_description_label(parent, "Device metrics and current status snapshot.");
 
+    create_static_data_label(parent, "Project:", "EurekaMate");
+    create_static_data_label(parent, "Based on:", "smart-grind-by-weight (jaapp)");
     create_static_data_label(parent, "Firmware:", "v" BUILD_FIRMWARE_VERSION);
     create_static_data_label(parent, "Build:", build_info);    
     

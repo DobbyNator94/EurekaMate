@@ -296,4 +296,39 @@ void tmc_write_datagram(uint8_t addr, uint8_t reg, uint32_t value, uint8_t out[8
     out[7] = tmc_crc8(out, 7);
 }
 
+// ---------------------------------------------------------------------------
+// Portions / hopper
+// ---------------------------------------------------------------------------
+void PortionCounter::start(uint8_t portions) {
+    total = portions < 1 ? 1 : (portions > MAX_PORTIONS ? MAX_PORTIONS : portions);
+    reset();
+}
+
+bool PortionCounter::add(float dose_g, float* total_dose_g) {
+    if (total < 1) total = 1;
+    if (dose_g > 0.0f) dose_sum_g += dose_g;
+    done++;
+    if (done < total) return false;
+    if (total_dose_g) *total_dose_g = dose_sum_g;
+    reset();
+    return true;
+}
+
+int recipe_for_hopper_slot(const int8_t* hopper_slot_of_recipe, int recipe_count, int slot) {
+    if (!hopper_slot_of_recipe || slot < 0) return -1;
+    for (int i = 0; i < recipe_count; i++)
+        if (hopper_slot_of_recipe[i] == slot) return i;
+    return -1;
+}
+
+bool grinder_start_allowed(const InterlockInputs& in) {
+    if (!in.motor_present) return true;  // no dial drive fitted: plain grind-by-weight
+    return !in.moving && !in.move_pending;
+}
+
+bool dose_allowed(const InterlockInputs& in) {
+    return in.motor_present && !in.moving && !in.move_pending && in.calibrated && in.position_trusted &&
+           !in.calibrating && !in.stalled;
+}
+
 }  // namespace gbs

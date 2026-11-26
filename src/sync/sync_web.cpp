@@ -29,7 +29,7 @@ float num_or_nan(float v) { return isnan(v) ? -1.0f : v; }
 bool authorized() {
     if (web_password.isEmpty()) return true;
     if (server->authenticate("admin", web_password.c_str())) return true;
-    server->requestAuthentication(BASIC_AUTH, "Smart Grind Sync");
+    server->requestAuthentication(BASIC_AUTH, "EurekaMate");
     return false;
 }
 
@@ -73,7 +73,11 @@ void fill_config(JsonObject o, const GrindSync::Config& c) {
         r["target_time_s"] = c.recipe[i].target_time_s;
         r["brew_weight_g"] = c.recipe[i].brew_weight_g;
         r["start_setting"] = num_or_nan(c.recipe[i].start_setting);
+        r["hopper_slot"] = c.recipe[i].hopper_slot;   // reserved: future 4-bean hopper (-1 = none)
+        r["portions"] = c.recipe[i].portions;
     }
+    o["hopper_enabled"] = c.hopper_enabled;
+    o["hopper_slots"] = SYNC_HOPPER_SLOTS;
 }
 
 void handle_status() {
@@ -127,8 +131,13 @@ void handle_status() {
     dj["error"] = d.last_error;
     dj["progress"] = d.progress_pct;
     dj["eta_ms"] = d.eta_ms;
+    dj["dose_allowed"] = d.dose_allowed;                 // interlock for future dosing gate / hopper
+    dj["grinder_start_allowed"] = d.grinder_start_allowed;
     dj["target"] = num_or_nan(d.target_setting);
     doc["active_recipe"] = s.active_recipe + 1;
+    doc["portion_done"] = s.portion_done;
+    doc["portion_total"] = s.portion_total;
+    doc["hopper_slot"] = s.hopper_slot;
     const DialMotor::Settings ms = dial_motor.settings();
     JsonObject mo = doc["motor"].to<JsonObject>();
     mo["microsteps"] = ms.microsteps;
@@ -173,6 +182,7 @@ void handle_config_post() {
     if (!in["gain_per_s"].isNull()) c.reg.gain_per_s = in["gain_per_s"];
     if (!in["max_step"].isNull()) c.reg.max_step = in["max_step"];
     if (!in["yield_tolerance"].isNull()) c.reg.yield_tolerance = in["yield_tolerance"];
+    if (!in["hopper_enabled"].isNull()) c.hopper_enabled = in["hopper_enabled"];
     if (in["host"].is<const char*>()) strlcpy(c.host, in["host"].as<const char*>(), sizeof(c.host));
     JsonArrayConst rs = in["recipes"].as<JsonArrayConst>();
     int i = 0;
@@ -186,6 +196,8 @@ void handle_config_post() {
             const float v = r["start_setting"];
             c.recipe[i].start_setting = v < 0 ? NAN : v;
         }
+        if (!r["hopper_slot"].isNull()) c.recipe[i].hopper_slot = static_cast<int8_t>(r["hopper_slot"].as<int>());
+        if (!r["portions"].isNull()) c.recipe[i].portions = static_cast<uint8_t>(constrain(r["portions"].as<int>(), 1, SYNC_MAX_PORTIONS));
         i++;
     }
     grind_sync.set_config(c);
@@ -249,6 +261,13 @@ void handle_test() {
     JsonDocument doc;
     doc["host"] = host;
     if (WiFi.status() != WL_CONNECTED) { doc["ok"] = false; doc["msg"] = "WiFi not connected"; return send_json(doc); }
+    uint16_t port = 80;
+    const int colon = host.lastIndexOf(':');
+    if (colon > 0) {
+        const long p = host.substring(colon + 1).toInt();
+        if (p > 0 && p < 65536) port = static_cast<uint16_t>(p);
+        host = host.substring(0, colon);
+    }
     IPAddress ip;
     bool resolved = ip.fromString(host);
     if (!resolved) {
@@ -266,7 +285,7 @@ void handle_test() {
     WiFiClient client;
     HTTPClient http;
     http.setTimeout(2000);
-    http.begin(client, ip.toString(), 80, gbs::PATH_IDENTITY);
+    http.begin(client, ip.toString(), port, gbs::PATH_IDENTITY);
     const int code = http.GET();
     String body = code == 200 ? http.getString() : String();
     http.end();

@@ -55,3 +55,12 @@
 #define SYNC_DEFAULT_RATIO 2.0f
 #define SYNC_PROFILE_SLOTS 3   // recipes 1-3 follow the SGBW profiles (Single/Double/Custom)
 #define SYNC_RECIPE_SLOTS 6    // recipes 4-6 are extra dial presets (e.g. Filter, Decaf) selected on display/web
+
+// ---- Future 4-bean hopper (reserved: data model + hooks only, no hardware yet) ----
+// One presence/position sensor per hopper slot (active LOW, e.g. hall sensor or microswitch).
+// The recipe that has the slot assigned is selected when that slot is detected.
+#define SYNC_HOPPER_SLOTS 4
+#define SYNC_HOPPER_SENSOR_PINS {-1, -1, -1, -1}   // GPIOs per slot, -1 = not fitted
+#define SYNC_HOPPER_DEBOUNCE_MS 150
+// Portions per recipe: number of dosing grinds before the recipe counts as done (filter: e.g. 3)
+#define SYNC_MAX_PORTIONS 10

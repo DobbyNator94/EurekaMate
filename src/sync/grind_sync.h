@@ -22,6 +22,8 @@ public:
         float target_time_s;      // "Brew Time"
         float brew_weight_g;      // "Brew Weight" (0 = dose x ratio)
         float start_setting;      // "GbS start DD" equivalent (NAN = none)
+        int8_t hopper_slot;       // future 4-bean hopper: slot 0..SYNC_HOPPER_SLOTS-1, -1 = none
+        uint8_t portions;         // dosing grinds per recipe (1 = normal, filter e.g. 3)
     };
 
     struct Config {
@@ -34,6 +36,7 @@ public:
         gbs::RegulatorConfig reg; // shared regulation parameters (target time comes from the recipe)
         Recipe recipe[SYNC_RECIPE_SLOTS];
         char host[64];            // GaggiMate host/IP (default gaggimate.local)
+        bool hopper_enabled;      // future: select recipes from hopper slot sensors
     };
 
     struct ShotRecord {
@@ -75,6 +78,9 @@ public:
         uint32_t poll_errors;
         float profile_setting[SYNC_RECIPE_SLOTS]; // per-recipe grind setting, NAN = not stored yet
         int active_recipe;                         // 0-based
+        uint8_t portion_done;                      // portions ground for the active recipe
+        uint8_t portion_total;
+        int8_t hopper_slot;                        // last detected hopper slot, -1 = none/unknown
     };
 
     void init();
@@ -95,6 +101,14 @@ public:
     void request_reconnect();
     int history(ShotRecord* out, int max_items); // newest first
     float recipe_target_weight(int profile, float dose_g);
+    // Future 4-bean hopper hook: a slot sensor reports slot (0..3) or -1 (none).
+    // Selects the recipe mapped to that slot when hopper_enabled.
+    void on_hopper_slot_changed(int slot);
+    // Interlock for a future dosing gate (hopper chamber -> burrs): only release beans
+    // when this returns true (dial move finished, position confirmed). Never bypass.
+    static bool dose_allowed();
+    // Discard a partly ground multi-portion recipe.
+    void reset_portions();
 
     Config config();
     void set_config(const Config& c);
@@ -122,6 +136,7 @@ private:
     void add_history(const ShotRecord& r);
     void load_history();
     void save_history();
+    void poll_hopper_sensors();
 
     Preferences prefs_;
     SemaphoreHandle_t mutex_ = nullptr;
@@ -147,6 +162,11 @@ private:
 
     bool identity_checked_ = false;
     IPAddress machine_addr_;
+    uint16_t machine_port_ = 80;
+    gbs::PortionCounter portions_;
+    int portions_recipe_ = -1;
+    int8_t hopper_raw_ = -1;
+    uint32_t hopper_change_ms_ = 0;
     uint32_t last_resolve_ms_ = 0;
     uint32_t last_wifi_attempt_ms_ = 0;
     uint8_t consecutive_errors_ = 0;

@@ -135,7 +135,7 @@ BLE_DATA_EXPORTING = 0x21
 BLE_DATA_COMPLETE = 0x22
 BLE_DATA_ERROR = 0x23
 
-DEVICE_NAME = "GrindByWeight"
+DEVICE_NAME = "EurekaMate"  # upstream firmware: "GrindByWeight"
 CHUNK_SIZE = 512
 DATA_CHUNK_SIZE = 500
 

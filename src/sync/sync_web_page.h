@@ -3,7 +3,7 @@
 #include <pgmspace.h>
 static const char SYNC_WEB_PAGE[] PROGMEM = R"SGSHTML(<!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Smart Grind Sync</title>
+<title>EurekaMate</title>
 <style>
 :root{--bg:#0d0d0f;--card:#18181c;--line:#2a2a30;--txt:#f2f2f2;--mut:#9a9aa3;--acc:#ff3b30;--blue:#0af;--ok:#2ecc71;--warn:#f0a020}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt)}
@@ -35,7 +35,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:7px 6px;b
 .recipe{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
 .recipe h3{margin:0 0 6px;font-size:16px}
 </style></head><body>
-<header><div class="dot" id="dot"></div><h1>Smart Grind Sync</h1><span class="pill" id="hdr">verbinde…</span></header>
+<header><div class="dot" id="dot"></div><h1>EurekaMate</h1><span class="pill" id="hdr">verbinde…</span></header>
 <nav id="nav"></nav>
 <main>
 <section id="s-status">
@@ -44,7 +44,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:7px 6px;b
   <path id="garc" d="M15 110 A90 90 0 0 1 195 110" stroke="#ff3b30" stroke-width="16" fill="none" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="283"/></svg>
   <div class="v" id="gval">–</div></div>
   <div style="text-align:center" class="lbl" id="gsub">0 = fein (Scheiben berühren sich) · 100 = grob</div>
-  <div id="prog" style="display:none;margin-top:10px"><div style="height:8px;background:#2a2a30;border-radius:4px"><div id="progb" style="height:8px;width:0;background:var(--blue);border-radius:4px"></div></div><div class="lbl" id="progt" style="text-align:center;margin-top:4px"></div></div>
+  <div id="prog" style="display:none;margin-top:10px"><div style="height:8px;background:#2a2a30;border-radius:4px"><div id="progb" style="height:8px;width:0;background:var(--blue);border-radius:4px"></div></div><div class="lbl" id="progt" style="text-align:center;margin-top:4px"></div></div><div class="lbl" id="dosel" style="text-align:center;margin-top:4px"></div><div class="lbl" id="portt" style="text-align:center;margin-top:4px;color:var(--warn)"></div>
  </div>
  <div class="card"><h2>Rezept wählen</h2><div class="btns" id="rsel"></div><div class="lbl" id="rselsub"></div></div>
  <div class="grid">
@@ -68,7 +68,10 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:7px 6px;b
  <div class="card"><h2>Rezepte (= GbS-Rezeptplätze in GaggiMate)</h2>
  <div class="lbl">Rezept 1–3 folgen den Profilen der Mühle (Single/Double/Custom). Rezept 4–6 sind zusätzliche Mahlgrad-Speicher
  (z. B. Filter, Decaf), die du am Display oder hier auswählst. In GaggiMate unter Einstellungen → Plugins → Mahlkönig E64 WS
- ordnest du jedem Rezeptplatz ein Profil zu (SYNC_FILTER = Rezeptnummer).</div><div id="recipes"></div>
+ ordnest du jedem Rezeptplatz ein Profil zu (SYNC_FILTER = Rezeptnummer).</div>
+ <label class="row">4-Bohnen-Trichter (vorbereitet, Hardware folgt)<input type="checkbox" id="c_hopper_enabled"></label>
+ <div class="lbl">„Portionen“: so oft wird gemahlen, bevor das Rezept als fertig gilt (z. B. Filter 3×). Erst nach der letzten Portion
+ meldet EurekaMate den Mahlvorgang an GaggiMate.</div><div id="recipes"></div>
  <div class="btns"><button class="btn pri" onclick="saveConfig()">Speichern</button></div><div class="msg" id="rmsg"></div></div>
 </section>
 
@@ -187,7 +190,7 @@ let S=null,cfgLoaded=false;
 const $=id=>document.getElementById(id),val=id=>$(id).value;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function tab(t){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id=='s-'+t));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));if(t=='hist')loadHist();}
-$('nav').innerHTML=T.map(t=>`<button data-t="${t[0]}" onclick="tab('${t[0]}')">${t[1]}</button>`).join('');tab('status');
+$('nav').innerHTML=T.map(t=>`<button data-t="${t[0]}" onclick="tab('${t[0]}')">${t[1]}</button>`).join('');tab(T.some(t=>t[0]==location.hash.slice(1))?location.hash.slice(1):'status');
 async function post(u,b){const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});try{return await r.json()}catch(e){return{ok:r.ok}}}
 function msg(id,r){$(id).textContent=r.ok?'✓ gespeichert':'✗ '+(r.msg||'Fehler')}
 function toast(t){$('smsg').textContent=t;setTimeout(()=>$('smsg').textContent='',4000)}
@@ -196,6 +199,7 @@ async function dial(b){const r=await post('/api/dial',b);$('dmsg').textContent=$
 async function manualShot(){const r=await post('/api/shot',{time_s:+val('mt'),weight_g:+val('mw')});toast(r.ok?'Bezug übernommen':'Fehler');}
 function fillCfg(c){['enabled','auto_adjust','send_recipe','start_brew_after_grind','follow_profile'].forEach(k=>$('c_'+k).checked=c[k]);
  ['ratio','deadband_s','gain_per_s','max_step','yield_tolerance','host'].forEach(k=>$('c_'+k).value=c[k]);
+ $('c_hopper_enabled').checked=!!c.hopper_enabled;
  $('saverec').innerHTML=c.recipes.map((r,i)=>`<option value="${i+1}">${i+1}: ${esc(r.name)}</option>`).join('');
  $('recipes').innerHTML=c.recipes.map((r,i)=>`<div class="recipe"><h3>Rezept ${i+1} <span class="lbl">${i<c.profile_slots?'folgt Mühlen-Profil '+(i+1):'Zusatz-Speicher'}</span></h3>
  <label class="row">Name<input type="text" maxlength="15" id="r${i}n" value="${esc(r.name)}"></label>
@@ -203,11 +207,14 @@ function fillCfg(c){['enabled','auto_adjust','send_recipe','start_brew_after_gri
  <label class="row">Ziel-Bezugszeit (s)<input type="number" step="0.5" id="r${i}t" value="${r.target_time_s}"></label>
  <label class="row">Getränkegewicht (g, 0 = Dosis × Verhältnis)<input type="number" step="0.5" id="r${i}w" value="${r.brew_weight_g}"></label>
  <label class="row">Start-Mahlgrad (−1 = keiner)<input type="number" step="0.5" id="r${i}s" value="${r.start_setting<0?-1:r.start_setting}"></label>
+ <label class="row">Portionen (Mahlvorgänge)<input type="number" min="1" max="10" step="1" id="r${i}p" value="${r.portions||1}"></label>
+ <label class="row">Trichter-Fach<select id="r${i}h"><option value="-1">keins</option>${[...Array(c.hopper_slots||4).keys()].map(k=>`<option value="${k}" ${r.hopper_slot==k?'selected':''}>Fach ${k+1}</option>`).join('')}</select></label>
  <div class="btns"><button class="btn" onclick="dial({action:'reset_recipe',recipe:${i+1}})">Auf Start-Mahlgrad zurücksetzen</button></div></div>`).join('');}
 function fillMotor(m){Object.keys(m).forEach(k=>{const e=$('m_'+k);if(!e)return;if(e.type=='checkbox')e.checked=m[k];else e.value=m[k];});}
 async function saveConfig(){const b={host:val('c_host')};['enabled','auto_adjust','send_recipe','start_brew_after_grind','follow_profile'].forEach(k=>b[k]=$('c_'+k).checked);
  ['ratio','deadband_s','gain_per_s','max_step','yield_tolerance'].forEach(k=>b[k]=+val('c_'+k));
- b.recipes=S.config.recipes.map((_,i)=>({name:val('r'+i+'n'),gbs:$('r'+i+'g').checked,target_time_s:+val('r'+i+'t'),brew_weight_g:+val('r'+i+'w'),start_setting:+val('r'+i+'s')}));
+ b.recipes=S.config.recipes.map((_,i)=>({name:val('r'+i+'n'),gbs:$('r'+i+'g').checked,target_time_s:+val('r'+i+'t'),brew_weight_g:+val('r'+i+'w'),start_setting:+val('r'+i+'s'),portions:+val('r'+i+'p'),hopper_slot:+val('r'+i+'h')}));
+ b.hopper_enabled=$('c_hopper_enabled').checked;
  const r=await post('/api/config',b);['rmsg','gmsg','nmsg'].forEach(i=>msg(i,r));}
 async function saveMotor(){const b={};['run_current_ma','boost_current_ma','stall_threshold','hold_current_pct','microsteps','max_speed_sps','accel_sps2','fast_speed_sps','fast_accel_sps2','backlash_steps'].forEach(k=>b[k]=+val('m_'+k));
  ['invert_dir','use_as5600','use_endstop','home_on_boot'].forEach(k=>b[k]=$('m_'+k).checked);msg('mmsg',await post('/api/motor',b));}
@@ -235,6 +242,8 @@ async function refresh(){try{S=await (await fetch('/api/status')).json()}catch(e
  if(!$('ssid').value)$('ssid').value=S.wifi.ssid||'';
  $('fwinfo').textContent='Build #'+S.build+' · Laufzeit '+Math.round(S.uptime_s/60)+' min';
  $('prog').style.display=d.moving?'block':'none';$('progb').style.width=d.progress+'%';
+ $("dosel").textContent=d.dose_allowed?"Dosierfreigabe: ja (Mahlgrad erreicht)":"Dosierfreigabe: nein (Motor fährt / Position unbestätigt)";
+ $("portt").textContent=S.portion_total>1?`Portion ${S.portion_done}/${S.portion_total}`:'';
  $('progt').textContent=d.moving?`fährt zu ${f1(d.target)} · ${d.progress}% · noch ca. ${(d.eta_ms/1000).toFixed(1)} s`:'';
  $('rsel').innerHTML=S.config.recipes.map((r,i)=>`<button class="btn ${S.active_recipe==i+1?'pri':''}" onclick="dial({action:'select_recipe',recipe:${i+1}})">${esc(r.name)}<br><small>${f1(S.recipe_setting[i]>=0?S.recipe_setting[i]:r.start_setting)}</small></button>`).join('');
  $('rselsub').textContent='Aktiv: Rezept '+S.active_recipe+(S.config.recipes[S.active_recipe-1]&&S.config.recipes[S.active_recipe-1].gbs?' · GbS an':' · GbS aus');

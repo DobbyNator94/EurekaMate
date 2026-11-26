@@ -472,20 +472,20 @@ def create_parser() -> argparse.ArgumentParser:
     upload_parser = subparsers.add_parser('upload', help='Upload firmware via BLE OTA')
     upload_parser.add_argument('firmware', nargs='?', help='Path to firmware .bin file (finds latest if not specified)')
     upload_parser.add_argument('--force-full', action='store_true', help='Force full firmware update (skip delta patching)')
-    upload_parser.add_argument('--device', default='GrindByWeight', help='Specify device name')
+    upload_parser.add_argument('--device', default='EurekaMate', help='Specify device name')
     
     build_upload_parser = subparsers.add_parser('build-upload', help='Build firmware and upload via BLE')
     build_upload_parser.add_argument('--force-full', action='store_true', help='Force full firmware update (skip delta patching)')
-    build_upload_parser.add_argument('--device', default='GrindByWeight', help='Specify device name')
+    build_upload_parser.add_argument('--device', default='EurekaMate', help='Specify device name')
     
     # Data & Analysis Commands
     export_parser = subparsers.add_parser('export', help='Export grind data from device to database')
     export_parser.add_argument('--db', help='Specify database file (default: grinder_data.db)')
-    export_parser.add_argument('--device', default='GrindByWeight', help='Specify device name')
+    export_parser.add_argument('--device', default='EurekaMate', help='Specify device name')
     
     analyze_parser = subparsers.add_parser('analyze', help='Export data and launch Streamlit report')
     analyze_parser.add_argument('--db', help='Specify database file (default: grinder_data.db)')
-    analyze_parser.add_argument('--device', default='GrindByWeight', help='Specify device name')
+    analyze_parser.add_argument('--device', default='EurekaMate', help='Specify device name')
     
     report_parser = subparsers.add_parser('report', help='Launch Streamlit report (no data export)')
     report_parser.add_argument('--db', help='Specify database file (default: grinder_data.db)')
@@ -497,22 +497,22 @@ def create_parser() -> argparse.ArgumentParser:
     scan_parser = subparsers.add_parser('scan', help='Scan for BLE devices')
     
     connect_parser = subparsers.add_parser('connect', help='Connect to grinder device')
-    connect_parser.add_argument('--device', default='GrindByWeight', help='Specify device name')
+    connect_parser.add_argument('--device', default='EurekaMate', help='Specify device name')
     
     debug_parser = subparsers.add_parser('debug', help='Stream live debug logs from device')
-    debug_parser.add_argument('--device', default='GrindByWeight', help='Specify device name')
+    debug_parser.add_argument('--device', default='EurekaMate', help='Specify device name')
     
     info_parser = subparsers.add_parser('info', help='Get comprehensive device system information')
-    info_parser.add_argument('--device', default='GrindByWeight', help='Specify device name')
+    info_parser.add_argument('--device', default='EurekaMate', help='Specify device name')
 
     diagnostics_parser = subparsers.add_parser('diagnostics', help='Get comprehensive diagnostic report for GitHub issues')
-    diagnostics_parser.add_argument('--device', default='GrindByWeight', help='Specify device name')
+    diagnostics_parser.add_argument('--device', default='EurekaMate', help='Specify device name')
     diagnostics_parser.add_argument('--save', metavar='FILE', help='Save report to file (default: print to console)')
 
     # Development Commands
     install_parser = subparsers.add_parser('install', help='Manually install Python dependencies (auto-setup when needed)')
     monitor_parser = subparsers.add_parser('monitor', help='Monitor live debug output via BLE (alias for debug)')
-    monitor_parser.add_argument('--device', default='GrindByWeight', help='Specify device name')
+    monitor_parser.add_argument('--device', default='EurekaMate', help='Specify device name')
     clean_parser = subparsers.add_parser('clean', help='Clean build artifacts')
     release_parser = subparsers.add_parser('release', help='Create tagged release (triggers automated GitHub release)')
     

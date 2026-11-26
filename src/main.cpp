@@ -13,6 +13,9 @@
 #include "tasks/weight_sampling_task.h"
 #include "tasks/grind_control_task.h"
 #include "tasks/file_io_task.h"
+#include "motor/dial_motor.h"
+#include "sync/grind_sync.h"
+#include "sync/sync_web.h"
 
 HardwareManager hardware_manager;
 StateMachine state_machine;
@@ -21,6 +24,24 @@ GrindController grind_controller;
 UIManager ui_manager;
 BluetoothManager g_bluetooth_manager;
 BluetoothManager& bluetooth_manager = g_bluetooth_manager;
+
+// --- Grind-by-Sync / motorized dial glue ---
+static bool grinder_busy() {
+    return grind_controller.is_active() || hardware_manager.get_grinder()->is_grinding();
+}
+// Interlock 1 (soft): a grind is not started while the dial moves or has a move queued.
+static bool grind_start_gate() { return dial_motor.grinder_start_allowed(); }
+// Interlock 2 (hard, every relay start incl. pulses/purge): if the dial still moves,
+// stop it before the grinder motor may run - the motor never runs during a dial move.
+static void dial_interlock_before_motor_start() {
+    if (dial_motor.move_pending()) dial_motor.stop_and_wait(50);
+}
+static void on_grind_completed(GrindMode mode, float final_weight, float target_weight) {
+    (void)target_weight;
+    grind_sync.notify_grind_completed(profile_controller.get_current_profile(),
+                                      mode == GrindMode::WEIGHT ? target_weight : final_weight);
+}
+static int current_profile_index() { return profile_controller.get_current_profile(); }
 
 #if SYS_ENABLE_REALTIME_HEARTBEAT
 // Core 1 timing metrics (global scope for main loop access)
@@ -75,6 +96,16 @@ void setup() {
     hardware_manager.set_grind_controller(&grind_controller);
     
     bluetooth_manager.init(hardware_manager.get_preferences());
+
+    // Motorized dial + Grind-by-Sync client (GaggiMate) + web configuration
+    Grinder::set_pre_start_hook(dial_interlock_before_motor_start);
+    dial_motor.set_busy_predicate(grinder_busy);
+    dial_motor.init();
+    grind_controller.set_completion_hook(on_grind_completed);
+    grind_controller.set_start_gate(grind_start_gate);
+    grind_sync.set_profile_provider(current_profile_index);
+    grind_sync.init();
+    sync_web.init();
     
     // Check for OTA failure to determine initial state
     String failed_ota_build = bluetooth_manager.check_ota_failure_after_boot();

@@ -1,3 +1,4 @@
+#include "grind_sync_ui.h"
 #include "menu_screen.h"
 #include <Arduino.h>
 #include <algorithm>
@@ -172,6 +173,9 @@ void MenuScreen::create_menu_ui() {
                            reinterpret_cast<void*>(static_cast<intptr_t>(ET::MENU_MOTOR_TEST)));
     }
 
+    // Grind-by-Sync + motorized dial pages
+    grind_sync_ui.create(menu, main_page);
+
     create_separator(main_page, "Settings");
     lv_obj_t* bluetooth_item = create_menu_item(main_page, "Bluetooth");
     lv_menu_set_load_page_event(menu, bluetooth_item, bluetooth_page);
@@ -239,6 +243,8 @@ void MenuScreen::create_info_page(lv_obj_t* parent) {
 
     create_description_label(parent, "Device metrics and current status snapshot.");
 
+    create_static_data_label(parent, "Project:", "EurekaMate");
+    create_static_data_label(parent, "Based on:", "smart-grind-by-weight (jaapp)");
     create_static_data_label(parent, "Firmware:", "v" BUILD_FIRMWARE_VERSION);
     create_static_data_label(parent, "Build:", build_info);    
     

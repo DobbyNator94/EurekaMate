@@ -112,6 +112,10 @@ void GrindController::start_grind(float target, uint32_t time_ms, GrindMode grin
     LOG_BLE("[%lums CONTROLLER] start_grind() called with target=%.1fg, time=%lums, mode=%s\n",
             millis(), target, (unsigned long)time_ms, grind_mode == GrindMode::TIME ? "TIME" : "WEIGHT");
     if (!weight_sensor || !grinder) return;
+    if (!start_gate_open()) {
+        LOG_BLE("[CONTROLLER] start_grind() refused - grind dial still moving (interlock)\n");
+        return;
+    }
     if (weight_sensor->has_hardware_fault()) {
         LOG_BLE("ERROR: Cannot start grind - load cell hardware fault detected (%d)\n",
                 static_cast<int>(weight_sensor->get_hardware_fault()));
@@ -765,6 +769,11 @@ void GrindController::switch_phase(GrindPhase new_phase, const GrindLoopData& lo
         }
 
         event_data.event = UIGrindEvent::COMPLETED;
+        if (completion_hook_) {
+            const float done_weight = (final_weight > 0) ? final_weight :
+                                      (weight_sensor ? weight_sensor->get_weight_high_latency() : 0.0f);
+            completion_hook_(mode, done_weight, target_weight);
+        }
         // Use final_weight if available (from final_measurement), otherwise use high latency weight
         event_data.final_weight = (final_weight > 0) ? final_weight : 
                                  (weight_sensor ? weight_sensor->get_weight_high_latency() : 0.0f);

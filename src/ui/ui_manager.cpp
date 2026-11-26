@@ -1,3 +1,4 @@
+#include "screens/grind_sync_ui.h"
 #include "ui_manager.h"
 #include <Arduino.h>
 #include <Preferences.h>
@@ -75,6 +76,8 @@ void UIManager::create_ui() {
 
     // Create all screens
     ready_screen.create();
+    grind_sync_ui.attach_ready_chip(ready_screen.get_screen());
+    grind_sync_ui.show_splash();
     edit_screen.create();
     grinding_screen.init(hardware_manager->get_preferences());
     grinding_screen.create();

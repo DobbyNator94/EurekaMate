@@ -765,6 +765,11 @@ void GrindController::switch_phase(GrindPhase new_phase, const GrindLoopData& lo
         }
 
         event_data.event = UIGrindEvent::COMPLETED;
+        if (completion_hook_) {
+            const float done_weight = (final_weight > 0) ? final_weight :
+                                      (weight_sensor ? weight_sensor->get_weight_high_latency() : 0.0f);
+            completion_hook_(mode, done_weight, target_weight);
+        }
         // Use final_weight if available (from final_measurement), otherwise use high latency weight
         event_data.final_weight = (final_weight > 0) ? final_weight : 
                                  (weight_sensor ? weight_sensor->get_weight_high_latency() : 0.0f);

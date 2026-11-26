@@ -84,6 +84,7 @@ struct PulseReport {
 // Controls the grinding process with predictive weight stopping and precision pulse corrections
 class GrindController {
 private:
+    void (*completion_hook_)(GrindMode, float, float) = nullptr;
     friend class WeightGrindStrategy;
     friend class TimeGrindStrategy;
 
@@ -224,6 +225,8 @@ public:
     void queue_log_message(const char* format, ...); // Core 0: Queue formatted log message
     
     bool is_active() const;
+    // Grind-by-Sync: called (from the grind task) when a grind completes successfully.
+    void set_completion_hook(void (*hook)(GrindMode mode, float final_weight, float target_weight)) { completion_hook_ = hook; }
     bool is_control_loop_paused() const { return control_loop_paused_; }
     float get_target_weight() const { return target_weight; }
     uint32_t get_target_time_ms() const { return target_time_ms; }

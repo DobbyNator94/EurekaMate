@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Grind Sync</title>
+<style>
+:root{--bg:#0d0d0f;--card:#18181c;--line:#2a2a30;--txt:#f2f2f2;--mut:#9a9aa3;--acc:#ff3b30;--blue:#0af;--ok:#2ecc71;--warn:#f0a020}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt)}
+header{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:2}
+header h1{font-size:18px;margin:0;font-weight:600}header .dot{width:10px;height:10px;border-radius:50%;background:var(--mut)}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;border-bottom:1px solid var(--line)}
+nav button{background:none;border:1px solid var(--line);color:var(--mut);padding:8px 12px;border-radius:999px;white-space:nowrap;cursor:pointer}
+nav button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+main{max-width:860px;margin:auto;padding:14px}section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 12px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{font-size:30px;font-weight:700}.kpi small{font-size:14px;color:var(--mut);font-weight:400}
+.lbl{color:var(--mut);font-size:13px}
+label.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+label.row:last-child{border:0}
+input[type=text],input[type=password],input[type=number],select{background:#0f0f12;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px;width:180px}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--acc)}
+.btn{background:#26262c;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:15px}
+.btn.pri{background:var(--acc);border-color:var(--acc)}.btn.blue{background:var(--blue);border-color:var(--blue);color:#000}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;background:#26262c;color:var(--mut)}
+.pill.ok{background:rgba(46,204,113,.15);color:var(--ok)}.pill.bad{background:rgba(255,59,48,.15);color:var(--acc)}.pill.warn{background:rgba(240,160,32,.15);color:var(--warn)}
+.gauge{position:relative;width:210px;height:120px;margin:auto}
+.gauge svg{width:210px;height:120px}.gauge .v{position:absolute;left:0;right:0;top:56px;text-align:center;font-size:34px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--mut);font-weight:500}
+.msg{margin-top:8px;font-size:14px;color:var(--mut);min-height:18px}
+.steps{counter-reset:s}.steps li{margin:6px 0}
+.recipe{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.recipe h3{margin:0 0 6px;font-size:16px}
+</style></head><body>
+<header><div class="dot" id="dot"></div><h1>Smart Grind Sync</h1><span class="pill" id="hdr">verbinde…</span></header>
+<nav id="nav"></nav>
+<main>
+<section id="s-status">
+ <div class="card"><h2>Mahlgrad</h2>
+  <div class="gauge"><svg viewBox="0 0 210 120"><path d="M15 110 A90 90 0 0 1 195 110" stroke="#2a2a30" stroke-width="16" fill="none" stroke-linecap="round"/>
+  <path id="garc" d="M15 110 A90 90 0 0 1 195 110" stroke="#ff3b30" stroke-width="16" fill="none" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="283"/></svg>
+  <div class="v" id="gval">–</div></div>
+  <div style="text-align:center" class="lbl" id="gsub">0 = fein (Scheiben berühren sich) · 100 = grob</div>
+  <div id="prog" style="display:none;margin-top:10px"><div style="height:8px;background:#2a2a30;border-radius:4px"><div id="progb" style="height:8px;width:0;background:var(--blue);border-radius:4px"></div></div><div class="lbl" id="progt" style="text-align:center;margin-top:4px"></div></div>
+ </div>
+ <div class="card"><h2>Rezept wählen</h2><div class="btns" id="rsel"></div><div class="lbl" id="rselsub"></div></div>
+ <div class="grid">
+  <div class="card"><h2>GaggiMate</h2><div id="mst" class="kpi">–</div><div class="lbl" id="mip"></div></div>
+  <div class="card"><h2>Letzter Bezug</h2><div class="kpi" id="lshot">–</div><div class="lbl" id="lsub"></div></div>
+  <div class="card"><h2>Grind-by-Sync</h2><div class="kpi" id="gbs">–</div><div class="lbl" id="gbssub"></div></div>
+ </div>
+ <div class="card"><h2>Aktionen</h2><div class="btns">
+  <button class="btn pri" onclick="post('/api/brew',{}).then(()=>toast('Bezug angefordert'))">Bezug starten</button>
+  <button class="btn" onclick="tab('dial')">Mahlgrad einstellen</button>
+  <button class="btn" onclick="tab('hist')">Verlauf</button></div>
+  <div class="msg" id="smsg"></div></div>
+ <div class="card"><h2>Bezugszeit manuell eintragen</h2>
+  <div class="lbl">Ohne GaggiMate-Verbindung (wie beim E64 WS): Zeit des letzten Bezugs eingeben.</div>
+  <label class="row">Zeit (s)<input type="number" id="mt" step="0.1" value="28"></label>
+  <label class="row">Gewicht (g, optional)<input type="number" id="mw" step="0.1" value="0"></label>
+  <div class="btns"><button class="btn" onclick="manualShot()">Übernehmen</button></div></div>
+</section>
+
+<section id="s-rec">
+ <div class="card"><h2>Rezepte (= GbS-Rezeptplätze in GaggiMate)</h2>
+ <div class="lbl">Rezept 1–3 folgen den Profilen der Mühle (Single/Double/Custom). Rezept 4–6 sind zusätzliche Mahlgrad-Speicher
+ (z. B. Filter, Decaf), die du am Display oder hier auswählst. In GaggiMate unter Einstellungen → Plugins → Mahlkönig E64 WS
+ ordnest du jedem Rezeptplatz ein Profil zu (SYNC_FILTER = Rezeptnummer).</div><div id="recipes"></div>
+ <div class="btns"><button class="btn pri" onclick="saveConfig()">Speichern</button></div><div class="msg" id="rmsg"></div></div>
+</section>
+
+<section id="s-reg">
+ <div class="card"><h2>Automatische Mahlgrad-Korrektur</h2>
+  <label class="row">Grind-by-Sync (WLAN + GaggiMate) aktiv<input type="checkbox" id="c_enabled"></label>
+  <label class="row">Mahlgrad automatisch anpassen<input type="checkbox" id="c_auto_adjust"></label>
+  <label class="row">Rezept + Zielgewicht an GaggiMate senden<input type="checkbox" id="c_send_recipe"></label>
+  <label class="row">Bezug nach dem Mahlen automatisch starten<input type="checkbox" id="c_start_brew_after_grind"></label>
+  <label class="row">Bei Rezeptwechsel Mahlgrad anfahren<input type="checkbox" id="c_follow_profile"></label>
+  <label class="row">Standard-Verhältnis (Getränk/Dosis)<input type="number" step="0.1" id="c_ratio"></label>
+ </div>
+ <div class="card"><h2>Regelparameter</h2>
+  <div class="lbl">Gültig sind nur Bezüge &gt; 15 s und ≤ Zielzeit + 15 s. Zu schnell → feiner, zu langsam → gröber.</div>
+  <label class="row">Totband (± s)<input type="number" step="0.1" id="c_deadband_s"></label>
+  <label class="row">Verstärkung (Einheiten pro s)<input type="number" step="0.05" id="c_gain_per_s"></label>
+  <label class="row">Max. Schritt pro Bezug (Einheiten)<input type="number" step="0.1" id="c_max_step"></label>
+  <label class="row">Gewichtstoleranz (0.25 = ±25 %)<input type="number" step="0.05" id="c_yield_tolerance"></label>
+  <div class="btns"><button class="btn pri" onclick="saveConfig()">Speichern</button></div><div class="msg" id="gmsg"></div></div>
+</section>
+
+<section id="s-dial">
+ <div class="card"><h2>Mahlgrad fahren</h2>
+  <div class="kpi" id="dset">–</div><div class="lbl" id="dsub"></div>
+  <div class="btns">
+   <button class="btn" onclick="dial({action:'jog',delta:-1})">−1 feiner</button>
+   <button class="btn" onclick="dial({action:'jog',delta:-0.1})">−0,1</button>
+   <button class="btn" onclick="dial({action:'jog',delta:0.1})">+0,1</button>
+   <button class="btn" onclick="dial({action:'jog',delta:1})">+1 gröber</button>
+   <button class="btn pri" onclick="dial({action:'stop'})">STOP</button></div>
+  <label class="row">Gehe zu Mahlgrad<input type="number" id="goto" step="0.1" value="30"></label>
+  <div class="btns"><button class="btn" onclick="dial({action:'goto',setting:+val('goto')})">Anfahren</button>
+   <select id="saverec"></select>
+   <button class="btn" onclick="dial({action:'save_recipe',recipe:+val('saverec')})">Als Mahlgrad für Rezept speichern</button>
+   <button class="btn" onclick="dial({action:'home'})">Referenzfahrt (grob)</button>
+   <button class="btn" onclick="dial({action:'trust'})">Position stimmt (bestätigen)</button></div>
+  <div class="msg" id="dmsg"></div></div>
+ <div class="card"><h2>Kalibrier-Assistent</h2>
+  <ol class="steps">
+   <li><b>Start</b> drücken. Die Mühle muss <b>aus</b> sein (Motor dreht nie während der Verstellung).</li>
+   <li>Mit den Schritt-Tasten Richtung <b>fein</b> fahren, bis die Scheiben sich gerade berühren (Widerstand / Motor rutscht leise) → <b>Punkt 0 setzen</b>.</li>
+   <li>Richtung <b>grob</b> fahren bis zur gröbsten gewünschten Stellung → <b>Punkt 100 setzen</b>.</li>
+   <li>Sicherheitsabstand wählen (Standard 5) → <b>Fertig</b>. Unter diesen Wert fährt die Automatik nie.</li></ol>
+  <div class="btns"><button class="btn blue" onclick="dial({action:'cal_begin'})">Start</button>
+   <button class="btn" onclick="dial({action:'jog_raw',steps:-800})">◀◀ 800</button>
+   <button class="btn" onclick="dial({action:'jog_raw',steps:-100})">◀ 100</button>
+   <button class="btn" onclick="dial({action:'jog_raw',steps:-10})">◀ 10</button>
+   <button class="btn" onclick="dial({action:'jog_raw',steps:10})">10 ▶</button>
+   <button class="btn" onclick="dial({action:'jog_raw',steps:100})">100 ▶</button>
+   <button class="btn" onclick="dial({action:'jog_raw',steps:800})">800 ▶▶</button></div>
+  <div class="lbl" style="margin-top:8px">◀ = Richtung fein, ▶ = Richtung grob (Drehrichtung ggf. unter „Motor“ umkehren). Position: <b id="csteps">–</b> Schritte</div>
+  <div class="btns"><button class="btn" onclick="dial({action:'cal_zero'})">Punkt 0 setzen</button>
+   <button class="btn" onclick="dial({action:'cal_coarse'})">Punkt 100 setzen</button>
+   <input type="number" id="margin" value="5" step="0.5" style="width:90px">
+   <button class="btn pri" onclick="dial({action:'cal_finish',margin:+val('margin')})">Fertig</button>
+   <button class="btn" onclick="dial({action:'cal_cancel'})">Abbrechen</button></div>
+  <div class="msg" id="cmsg"></div></div>
+</section>
+
+<section id="s-motor">
+ <div class="card"><h2>Schrittmotor (TMC2209)</h2>
+  <label class="row">Motorstrom (mA RMS)<input type="number" id="m_run_current_ma" step="25"></label>
+  <label class="row">Losbrech-Strom (mA, erste 0,4 s jeder Fahrt)<input type="number" id="m_boost_current_ma" step="25"></label>
+  <label class="row">StallGuard-Schwelle (0 = aus, 1–255)<input type="number" id="m_stall_threshold"></label>
+  <label class="row">Haltestrom (% , 0 = Treiber aus)<input type="number" id="m_hold_current_pct"></label>
+  <label class="row">Mikroschritte<select id="m_microsteps"><option>8</option><option>16</option><option>32</option><option>64</option></select></label>
+  <label class="row">Fein-Geschwindigkeit (GbS-Korrektur, Schritte/s)<input type="number" id="m_max_speed_sps"></label>
+  <label class="row">Fein-Beschleunigung (Schritte/s²)<input type="number" id="m_accel_sps2"></label>
+  <label class="row">Eil-Geschwindigkeit (Rezeptwechsel, Schritte/s)<input type="number" id="m_fast_speed_sps"></label>
+  <label class="row">Eil-Beschleunigung (Schritte/s²)<input type="number" id="m_fast_accel_sps2"></label>
+  <div class="lbl" id="fullrange"></div>
+  <label class="row">Spielausgleich (Schritte)<input type="number" id="m_backlash_steps"></label>
+  <label class="row">Drehrichtung umkehren<input type="checkbox" id="m_invert_dir"></label>
+  <label class="row">AS5600-Encoder verwenden<input type="checkbox" id="m_use_as5600"></label>
+  <label class="row">Endschalter (grob) verwenden<input type="checkbox" id="m_use_endstop"></label>
+  <label class="row">Referenzfahrt nach dem Einschalten<input type="checkbox" id="m_home_on_boot"></label>
+  <div class="btns"><button class="btn pri" onclick="saveMotor()">Speichern</button></div>
+  <div class="lbl">Am internen 12-V-Netz der Mühle niedrig bleiben (300–400 mA). AS5600 wird nach einem Neustart aktiv.</div>
+  <div class="msg" id="mmsg"></div></div>
+</section>
+
+<section id="s-net">
+ <div class="card"><h2>WLAN</h2>
+  <div class="lbl" id="wstat"></div>
+  <label class="row">Netzwerk<select id="ssidsel" onchange="if(this.value)document.getElementById('ssid').value=this.value"><option value="">– suchen –</option></select></label>
+  <label class="row">SSID<input type="text" id="ssid"></label>
+  <label class="row">Passwort<input type="password" id="pass" placeholder="unverändert"></label>
+  <div class="btns"><button class="btn" onclick="scan()">Netzwerke suchen</button><button class="btn pri" onclick="saveWifi()">Verbinden</button>
+   <button class="btn" onclick="post('/api/ap',{on:true})">Setup-Hotspot an</button><button class="btn" onclick="post('/api/ap',{on:false})">Hotspot aus</button></div>
+  <div class="msg" id="wmsg"></div></div>
+ <div class="card"><h2>GaggiMate</h2>
+  <div class="lbl">In GaggiMate (ab v1.10.0): Einstellungen → Plugins → „Mahlkönig E64 WS Grind-by-Sync“ einschalten.</div>
+  <label class="row">Host / IP<input type="text" id="c_host"></label>
+  <div class="btns"><button class="btn" onclick="discover()">Im Netz suchen (mDNS)</button><button class="btn blue" onclick="testConn()">Verbindung testen</button>
+   <button class="btn pri" onclick="saveConfig()">Speichern</button></div>
+  <div id="found"></div><div class="msg" id="nmsg"></div></div>
+ <div class="card"><h2>Web-Zugang</h2>
+  <label class="row">Passwort für diese Seite (leer = keins, Benutzer „admin“)<input type="password" id="webpw"></label>
+  <div class="btns"><button class="btn" onclick="post('/api/password',{password:val('webpw')}).then(r=>msg('pmsg',r))">Setzen</button></div><div class="msg" id="pmsg"></div></div>
+</section>
+
+<section id="s-hist">
+ <div class="card"><h2>Bezüge (neueste zuerst)</h2>
+  <table><thead><tr><th>#</th><th>Rezept</th><th>Zeit</th><th>Ziel</th><th>Gewicht</th><th>Korrektur</th><th>Mahlgrad</th><th>Ergebnis</th></tr></thead><tbody id="hist"></tbody></table></div>
+</section>
+
+<section id="s-fw">
+ <div class="card"><h2>Firmware-Update</h2><div class="lbl" id="fwinfo"></div>
+  <form id="fwf"><input type="file" id="fw" accept=".bin"> <button class="btn pri" type="submit">Hochladen</button></form>
+  <div class="msg" id="fmsg"></div></div>
+</section>
+</main>
+<script>
+const T=[['status','Status'],['rec','Rezepte'],['reg','Regelung'],['dial','Mahlgrad'],['motor','Motor'],['net','WLAN & GaggiMate'],['hist','Verlauf'],['fw','Update']];
+let S=null,cfgLoaded=false;
+const $=id=>document.getElementById(id),val=id=>$(id).value;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function tab(t){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id=='s-'+t));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));if(t=='hist')loadHist();}
+$('nav').innerHTML=T.map(t=>`<button data-t="${t[0]}" onclick="tab('${t[0]}')">${t[1]}</button>`).join('');tab('status');
+async function post(u,b){const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});try{return await r.json()}catch(e){return{ok:r.ok}}}
+function msg(id,r){$(id).textContent=r.ok?'✓ gespeichert':'✗ '+(r.msg||'Fehler')}
+function toast(t){$('smsg').textContent=t;setTimeout(()=>$('smsg').textContent='',4000)}
+const f1=v=>v<0||v==null?'–':(+v).toFixed(1);
+async function dial(b){const r=await post('/api/dial',b);$('dmsg').textContent=$('cmsg').textContent=r.ok?'✓':'✗ '+(r.msg||'abgelehnt');refresh()}
+async function manualShot(){const r=await post('/api/shot',{time_s:+val('mt'),weight_g:+val('mw')});toast(r.ok?'Bezug übernommen':'Fehler');}
+function fillCfg(c){['enabled','auto_adjust','send_recipe','start_brew_after_grind','follow_profile'].forEach(k=>$('c_'+k).checked=c[k]);
+ ['ratio','deadband_s','gain_per_s','max_step','yield_tolerance','host'].forEach(k=>$('c_'+k).value=c[k]);
+ $('saverec').innerHTML=c.recipes.map((r,i)=>`<option value="${i+1}">${i+1}: ${esc(r.name)}</option>`).join('');
+ $('recipes').innerHTML=c.recipes.map((r,i)=>`<div class="recipe"><h3>Rezept ${i+1} <span class="lbl">${i<c.profile_slots?'folgt Mühlen-Profil '+(i+1):'Zusatz-Speicher'}</span></h3>
+ <label class="row">Name<input type="text" maxlength="15" id="r${i}n" value="${esc(r.name)}"></label>
+ <label class="row">GbS für dieses Rezept<input type="checkbox" id="r${i}g" ${r.gbs?'checked':''}></label>
+ <label class="row">Ziel-Bezugszeit (s)<input type="number" step="0.5" id="r${i}t" value="${r.target_time_s}"></label>
+ <label class="row">Getränkegewicht (g, 0 = Dosis × Verhältnis)<input type="number" step="0.5" id="r${i}w" value="${r.brew_weight_g}"></label>
+ <label class="row">Start-Mahlgrad (−1 = keiner)<input type="number" step="0.5" id="r${i}s" value="${r.start_setting<0?-1:r.start_setting}"></label>
+ <div class="btns"><button class="btn" onclick="dial({action:'reset_recipe',recipe:${i+1}})">Auf Start-Mahlgrad zurücksetzen</button></div></div>`).join('');}
+function fillMotor(m){Object.keys(m).forEach(k=>{const e=$('m_'+k);if(!e)return;if(e.type=='checkbox')e.checked=m[k];else e.value=m[k];});}
+async function saveConfig(){const b={host:val('c_host')};['enabled','auto_adjust','send_recipe','start_brew_after_grind','follow_profile'].forEach(k=>b[k]=$('c_'+k).checked);
+ ['ratio','deadband_s','gain_per_s','max_step','yield_tolerance'].forEach(k=>b[k]=+val('c_'+k));
+ b.recipes=S.config.recipes.map((_,i)=>({name:val('r'+i+'n'),gbs:$('r'+i+'g').checked,target_time_s:+val('r'+i+'t'),brew_weight_g:+val('r'+i+'w'),start_setting:+val('r'+i+'s')}));
+ const r=await post('/api/config',b);['rmsg','gmsg','nmsg'].forEach(i=>msg(i,r));}
+async function saveMotor(){const b={};['run_current_ma','boost_current_ma','stall_threshold','hold_current_pct','microsteps','max_speed_sps','accel_sps2','fast_speed_sps','fast_accel_sps2','backlash_steps'].forEach(k=>b[k]=+val('m_'+k));
+ ['invert_dir','use_as5600','use_endstop','home_on_boot'].forEach(k=>b[k]=$('m_'+k).checked);msg('mmsg',await post('/api/motor',b));}
+async function saveWifi(){msg('wmsg',await post('/api/wifi',{ssid:val('ssid'),pass:val('pass')}));}
+async function scan(){$('wmsg').textContent='suche…';for(let i=0;i<10;i++){const r=await (await fetch('/api/scan')).json();if(r.networks){$('ssidsel').innerHTML='<option value="">– wählen –</option>'+r.networks.map(n=>`<option>${esc(n.ssid)}</option>`).join('');$('wmsg').textContent=r.networks.length+' Netze gefunden';return}await new Promise(x=>setTimeout(x,1500))}}
+async function discover(){const r=await (await fetch('/api/discover')).json();$('found').innerHTML=r.devices.length?r.devices.map(d=>`<div class="btns"><button class="btn" data-h="${esc(d.host)}" onclick="$('c_host').value=this.dataset.h">${esc(d.host)} (${esc(d.ip)})</button></div>`).join(''):'<div class="lbl">Kein GaggiMate per mDNS gefunden – IP manuell eintragen.</div>'}
+async function testConn(){$('nmsg').textContent='teste…';const r=await post('/api/test',{host:val('c_host')});$('nmsg').textContent=(r.ok?'✓ ':'✗ ')+r.msg+(r.ip?' ('+r.ip+')':'')}
+async function loadHist(){const r=await (await fetch('/api/history')).json();$('hist').innerHTML=r.shots.map(s=>`<tr><td>${s.seq}</td><td>${s.recipe>0?s.recipe:'–'}</td><td>${s.time_s.toFixed(1)} s${s.manual?' ✎':''}</td><td>${s.target_s.toFixed(0)} s</td><td>${s.weight_g?s.weight_g.toFixed(1)+' g':'–'}</td><td>${s.delta?(s.delta>0?'+':'')+s.delta.toFixed(1):'–'}</td><td>${f1(s.setting)}</td><td>${s.verdict}</td></tr>`).join('')||'<tr><td colspan=8 class="lbl">Noch keine Bezüge</td></tr>'}
+$('fwf').onsubmit=async e=>{e.preventDefault();const f=$('fw').files[0];if(!f)return;const d=new FormData();d.append('firmware',f);$('fmsg').textContent='lade hoch…';const r=await fetch('/update',{method:'POST',body:d});$('fmsg').textContent=await r.text()};
+async function refresh(){try{S=await (await fetch('/api/status')).json()}catch(e){$('hdr').textContent='offline';$('hdr').className='pill bad';return}
+ const d=S.dial,m=S.machine,l=S.last_shot;
+ $('dot').style.background=m.seen?'var(--ok)':(S.wifi.connected?'var(--warn)':'var(--acc)');
+ $('hdr').textContent=m.seen?'GaggiMate verbunden':(S.wifi.connected?'WLAN ok, GaggiMate fehlt':'nicht verbunden');$('hdr').className='pill '+(m.seen?'ok':'warn');
+ const s=d.setting;$('gval').textContent=s<0?'–':s.toFixed(1);$('garc').setAttribute('stroke-dashoffset',s<0?283:283*(1-s/100));
+ $('gsub').textContent=!d.calibrated?'Nicht kalibriert – Reiter „Mahlgrad“':(!d.trusted?'Position unsicher – bitte bestätigen oder Referenzfahrt':(d.moving?'fährt…':'0 = fein · 100 = grob · Minimum '+d.min_setting.toFixed(1)));
+ $('mst').textContent=m.seen?m.state+(m.state=='brewing'?' '+(m.extraction_ms/1000).toFixed(1)+' s':''):'–';
+ $('mip').textContent=(m.ip||S.config.host)+(m.identity_ok?' · GbS ok':'')+(m.waiting_for_shot?' · wartet auf Bezug':'');
+ $('lshot').innerHTML=l.valid?l.time_s.toFixed(1)+'<small> s</small>':'–';
+ $('lsub').textContent=l.valid?`Rezept ${l.recipe>0?l.recipe:'–'} · ${l.weight_g?l.weight_g.toFixed(1)+' g · ':''}${l.verdict}${l.delta?' ('+(l.delta>0?'+':'')+l.delta.toFixed(1)+')':''}`:'';
+ $('gbs').textContent=S.config.enabled?(S.config.auto_adjust?'Auto':'nur Sync'):'aus';
+ $('gbssub').textContent=`${S.shots_seen} Bezüge · ${S.adjustments} Korrekturen`;
+ $('dset').textContent=s<0?'–':s.toFixed(1);$('csteps').textContent=d.steps;
+ $('dsub').textContent=(d.error||'')+(d.slip?' · Schlupf erkannt':'')+(d.stalled?' · Motor blockiert (StallGuard)!':'')+(d.brownout?' · Unterspannung während Fahrt!':'')+(d.encoder?' · AS5600 aktiv':'');
+ $('wstat').textContent=S.wifi.connected?`Verbunden mit ${S.wifi.ssid} · ${S.wifi.ip} · ${S.wifi.rssi} dBm`:(S.wifi.ap?'Setup-Hotspot aktiv: '+S.wifi.ap_ssid:'nicht verbunden');
+ if(!$('ssid').value)$('ssid').value=S.wifi.ssid||'';
+ $('fwinfo').textContent='Build #'+S.build+' · Laufzeit '+Math.round(S.uptime_s/60)+' min';
+ $('prog').style.display=d.moving?'block':'none';$('progb').style.width=d.progress+'%';
+ $('progt').textContent=d.moving?`fährt zu ${f1(d.target)} · ${d.progress}% · noch ca. ${(d.eta_ms/1000).toFixed(1)} s`:'';
+ $('rsel').innerHTML=S.config.recipes.map((r,i)=>`<button class="btn ${S.active_recipe==i+1?'pri':''}" onclick="dial({action:'select_recipe',recipe:${i+1}})">${esc(r.name)}<br><small>${f1(S.recipe_setting[i]>=0?S.recipe_setting[i]:r.start_setting)}</small></button>`).join('');
+ $('rselsub').textContent='Aktiv: Rezept '+S.active_recipe+(S.config.recipes[S.active_recipe-1]&&S.config.recipes[S.active_recipe-1].gbs?' · GbS an':' · GbS aus');
+ if(S.motor.full_range_s)$('fullrange').textContent='Fahrzeit 0→100 im Eilgang ca. '+S.motor.full_range_s.toFixed(1)+' s (aus Kalibrierung berechnet)';
+ if(!cfgLoaded){fillCfg(S.config);fillMotor(S.motor);$('margin').value=d.min_setting;cfgLoaded=true}}
+refresh();setInterval(refresh,1000);
+</script></body></html>

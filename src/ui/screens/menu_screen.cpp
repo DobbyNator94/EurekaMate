@@ -1,3 +1,4 @@
+#include "grind_sync_ui.h"
 #include "menu_screen.h"
 #include <Arduino.h>
 #include <algorithm>
@@ -171,6 +172,9 @@ void MenuScreen::create_menu_ui() {
         lv_obj_add_event_cb(motor_test_button, EventBridgeLVGL::dispatch_event, LV_EVENT_CLICKED,
                            reinterpret_cast<void*>(static_cast<intptr_t>(ET::MENU_MOTOR_TEST)));
     }
+
+    // Grind-by-Sync + motorized dial pages
+    grind_sync_ui.create(menu, main_page);
 
     create_separator(main_page, "Settings");
     lv_obj_t* bluetooth_item = create_menu_item(main_page, "Bluetooth");

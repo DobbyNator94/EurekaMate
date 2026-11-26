@@ -5,6 +5,8 @@
 #include "mock_hx711_driver.h"
 #endif
 
+void (*Grinder::pre_start_hook)() = nullptr;
+
 void Grinder::init(int pin) {
     motor_pin = pin;
     grinding = false;
@@ -39,6 +41,7 @@ void Grinder::init(int pin) {
 }
 
 void Grinder::start() {
+    if (pre_start_hook) pre_start_hook();
 #if DEBUG_ENABLE_LOADCELL_MOCK
     if (!initialized) return;
     MockHX711Driver::notify_grinder_start();
@@ -110,6 +113,7 @@ void Grinder::stop() {
 }
 
 void Grinder::start_pulse_rmt(uint32_t duration_ms) {
+    if (pre_start_hook) pre_start_hook();
 #if DEBUG_ENABLE_LOADCELL_MOCK
     if (!initialized) return;
     MockHX711Driver::notify_pulse(duration_ms);

@@ -29,8 +29,11 @@ private:
     std::function<void(const GrindEventData&)> ui_event_callback;
 
     void emit_background_change(bool active);
+    static void (*pre_start_hook)();
 
 public:
+    // Called right before the motor relay closes (dial motor interlock).
+    static void set_pre_start_hook(void (*hook)()) { pre_start_hook = hook; }
     void init(int pin);
     void start();
     void stop();

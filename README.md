@@ -1,8 +1,25 @@
 # EurekaMate ☕⚙️
 
+> [!CAUTION]
+> **🇩🇪 ACHTUNG – BITTE ZUERST LESEN:** Dieses Projekt ist **komplett „vibe-coded“ (KI-generiert)** und
+> **komplett ungetestet** – weder die Firmware noch die Hardware, die Pläne oder die Anleitungen wurden an einer
+> echten Mühle ausprobiert. Es gibt **keinerlei Garantie, Gewährleistung oder Haftung für irgendetwas**.
+> **Jeder ist allein für sich selbst verantwortlich.** Arbeiten an **230-V-Geräten ist gefährlich** und kann
+> tödlich sein. **Wenn du nicht genau weißt, was du tust, lass es lieber ganz bleiben.**
+>
+> **🇬🇧 WARNING – READ THIS FIRST:** This project is **entirely vibe-coded (AI-generated)** and **completely
+> untested** – none of the firmware, hardware, schematics or guides have been tried on a real grinder. There is
+> **no guarantee, warranty or liability for anything whatsoever**. **Everyone is solely responsible for
+> themselves.** Working on **230 V devices is dangerous** and can kill you. **If you don't know exactly what
+> you're doing, better don't do anything at all.**
+
 **Eureka Mignon Specialità + GaggiMate Grind-by-Sync + motorisiertes Mahlgradrad**
 
 🇬🇧 English version: **[README_EN.md](README_EN.md)**
+
+| 🧸 **[Bauanleitung Schritt für Schritt (mit Bildern)](docs/BAUANLEITUNG.md)** | ⚡ **[Web-Flasher](https://dobbynator94.github.io/EurekaMate/)** | 📦 **[Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta)** |
+|:---:|:---:|:---:|
+| Für Einsteiger: 11 Schritte, ein Bild pro Schritt | Firmware im Browser installieren (Chrome/Edge + USB-C) | Vorabversion, **ungetestet auf Hardware** |
 
 EurekaMate macht aus einer Eureka Mignon Specialità eine Mühle, die mit
 [GaggiMate](https://github.com/jniebuhr/gaggimate) so zusammenarbeitet wie eine **Mahlkönig E64 WS**
@@ -127,7 +144,7 @@ auf. Grind-by-Weight, das Touch-UI, die Waage und die BLE-Tools stammen von dort
 | Filament | – | PETG (Gehäuse, Halter, Ritzel), TPU 95A (Spannband) | |
 | Fallback (optional) | 1 | Netzteil 12 V / 2 A | falls die 12-V-Schiene einbricht |
 
-Ausführliche Liste mit Preisen und Werkzeug: **[docs/ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md#1-einkaufsliste)**.
+Ausführliche Liste mit Preisen und Werkzeug: **[docs/ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md#1-einkaufsliste)** · mit Bildern: **[docs/BAUANLEITUNG.md](docs/BAUANLEITUNG.md#1-was-du-brauchst)**.
 
 ---
 
@@ -135,7 +152,7 @@ Ausführliche Liste mit Preisen und Werkzeug: **[docs/ANLEITUNG_DE.md](docs/ANLE
 
 ![Schaltplan](docs/img/schaltplan.png)
 
-Großansicht: [SVG](docs/img/schaltplan.svg) · Schritt für Schritt: [docs/ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md#3-überblick-was-wird-wie-verbunden)
+Großansicht: [SVG](docs/img/schaltplan.svg) · Schritt für Schritt: [docs/BAUANLEITUNG.md](docs/BAUANLEITUNG.md#5-kabel-verbinden--eins-nach-dem-anderen) · Tabelle: [docs/ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md#verdrahtungstabelle)
 
 | Funktion | ESP32-S3 GPIO | Gegenstelle |
 |---|---|---|
@@ -176,6 +193,24 @@ Reicht das nicht: kleineres Ritzel, mehr Boost-Strom oder NEMA17 mit Planetenget
 
 ## Firmware flashen
 
+### Einfach: Web-Flasher
+
+👉 **https://dobbynator94.github.io/EurekaMate/**
+
+1. Board per **USB-C-Datenkabel** an den PC (Mühle ausgesteckt).
+2. Seite in **Chrome oder Edge (Desktop)** öffnen, Version **v0.1.0-beta** wählen, **„Installieren“** klicken.
+3. Port wählen, beim ersten Mal **„Erase device“** anhaken, *Install*, 1–2 Minuten warten.
+
+Bilder und Fehlersuche: [BAUANLEITUNG.md, Schritt 8](docs/BAUANLEITUNG.md#8-firmware-flashen-per-web-flasher).
+Alle Dateien (App, Bootloader, Partitionen, Komplett-Image, BLE-OTA, Manifest, SHA256) im
+[Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta).
+Ohne Browser: `esptool --chip esp32s3 write-flash 0x0 eurekamate-v0.1.0-beta-full.bin`.
+
+> Die App liegt im **factory-Slot (0x20000)**, otadata wird geleert. So startet ein frisch geflashtes
+> Board immer die neue Firmware. Spätere OTA-Updates gehen wie gewohnt in ota_0/ota_1.
+
+### Für Entwickler: selbst bauen
+
 ```bash
 git clone https://github.com/DobbyNator94/EurekaMate.git
 cd EurekaMate
@@ -184,7 +219,8 @@ pio run -e waveshare-esp32s3-touch-amoled-164 -t upload
 ```
 
 - Board wird nicht erkannt: **BOOT** halten, **RESET** tippen, BOOT loslassen, erneut hochladen.
-- Spätere Updates ohne Kabel: Weboberfläche → *Update* (`.pio/build/<env>/firmware.bin`) oder per BLE.
+- Spätere Updates ohne Kabel: Weboberfläche → *Update* (`.pio/build/<env>/firmware.bin`) oder per BLE im [Web-Flasher](https://dobbynator94.github.io/EurekaMate/) (Reiter *Update (Bluetooth)*).
+- Release bauen: `python3 tools/build_release.py v0.1.0-beta --out ../eurekamate-release --site ../eurekamate-site` (erzeugt Bins, Manifest und die Flasher-Seite für den Branch `gh-pages`).
 - Testen ohne Maschine: Umgebung `waveshare-esp32s3-touch-amoled-164-mock` (simuliertes GaggiMate)
   oder `python3 tools/mock_gaggimate.py --port 8080 --auto` und als Host `<PC-IP>:8080` eintragen.
 - Unit-Tests: `pio test -e native`.
@@ -288,7 +324,7 @@ Im Verlauf steht zu jedem Bezug, warum korrigiert wurde oder nicht (`adjust`, `i
   - Einzeldosierung je Portion (Filter = mehrere Dosierungen)
 - [ ] Live-Status per WebSocket/SSE statt Polling
 - [ ] TMC2209-UART lesend (Diagnose, Temperaturwarnung)
-- [ ] Optional: Web-Flasher mit EurekaMate-Releases
+- [x] Web-Flasher mit EurekaMate-Releases ([Link](https://dobbynator94.github.io/EurekaMate/))
 
 ---
 
@@ -296,11 +332,15 @@ Im Verlauf steht zu jedem Bezug, warum korrigiert wurde oder nicht (`adjust`, `i
 
 | Dokument | Inhalt |
 |---|---|
-| [docs/ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md) | 🇩🇪 Bauanleitung für Einsteiger: Einkaufsliste, Werkzeug, Messen, Löten, Flashen, Assistent, Fehlersuche |
+| [docs/BAUANLEITUNG.md](docs/BAUANLEITUNG.md) · 🇬🇧 [BUILD_GUIDE_EN.md](docs/BUILD_GUIDE_EN.md) | 🧸 Ganz einfache Schritt-für-Schritt-Anleitung, ein Bild pro Schritt, inkl. Web-Flasher |
+| [docs/ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md) · 🇬🇧 [ANLEITUNG_EN.md](docs/ANLEITUNG_EN.md) | Ausführliche Anleitung: Einkaufsliste, Werkzeug, Verdrahtungstabelle, Messen, Löten, Flashen, Assistent, Fehlersuche |
+| [Web-Flasher](https://dobbynator94.github.io/EurekaMate/) · [Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta) | Firmware installieren / herunterladen |
 | [docs/GAGGIMATE_GBS.md](docs/GAGGIMATE_GBS.md) | Protokoll, Regelung, Strom, Drehmoment, StallGuard, Fahrzeiten, Pins (Englisch) |
 | [hardware/stepper-mount/README.md](hardware/stepper-mount/README.md) | Motorhalter: STL, Maße, Quellen, Druck, Montage |
 | [docs/img/schaltplan.png](docs/img/schaltplan.png) | Schaltplan (erzeugt mit `tools/gen_schematic.py`) |
 | [docs/DOC.md](docs/DOC.md), [docs/UPSTREAM_README.md](docs/UPSTREAM_README.md) | Original-Doku von smart-grind-by-weight (Waage, Display, BLE-Tools) |
+
+> 🌍 Regel: Jedes deutsche Dokument hat eine englische Version, und beide werden gemeinsam aktuell gehalten.
 
 ---
 

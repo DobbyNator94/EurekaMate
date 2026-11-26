@@ -1,5 +1,22 @@
 # EurekaMate – Bauanleitung für Einsteiger (Deutsch)
 
+> [!CAUTION]
+> **🇩🇪 ACHTUNG – BITTE ZUERST LESEN:** Dieses Projekt ist **komplett „vibe-coded“ (KI-generiert)** und
+> **komplett ungetestet** – weder die Firmware noch die Hardware, die Pläne oder die Anleitungen wurden an einer
+> echten Mühle ausprobiert. Es gibt **keinerlei Garantie, Gewährleistung oder Haftung für irgendetwas**.
+> **Jeder ist allein für sich selbst verantwortlich.** Arbeiten an **230-V-Geräten ist gefährlich** und kann
+> tödlich sein. **Wenn du nicht genau weißt, was du tust, lass es lieber ganz bleiben.**
+>
+> **🇬🇧 WARNING – READ THIS FIRST:** This project is **entirely vibe-coded (AI-generated)** and **completely
+> untested** – none of the firmware, hardware, schematics or guides have been tried on a real grinder. There is
+> **no guarantee, warranty or liability for anything whatsoever**. **Everyone is solely responsible for
+> themselves.** Working on **230 V devices is dangerous** and can kill you. **If you don't know exactly what
+> you're doing, better don't do anything at all.**
+
+🇬🇧 English version: **[ANLEITUNG_EN.md](ANLEITUNG_EN.md)** ·
+🧸 Ganz einfache Schritt-für-Schritt-Version mit Bildern: **[BAUANLEITUNG.md](BAUANLEITUNG.md)** ·
+⚡ **[Web-Flasher](https://dobbynator94.github.io/EurekaMate/)**
+
 **EurekaMate** macht deine **Eureka Mignon Specialità** zu einer Mühle, die mit **GaggiMate** wie eine
 Mahlkönig E64 WS zusammenarbeitet ("Grind-by-Sync"). Die Mühle mahlt aufs Gramm genau
 (Grind-by-Weight) und meldet den Mahlvorgang an GaggiMate. Nach jedem Bezug verstellt ein
@@ -56,7 +73,7 @@ auf. Danke an jaapp! Lizenzen: Software GPLv3, Hardware CERN-OHL-S v2.
 - Seitenschneider, Abisolierzange, Schrumpfschlauch + Feuerzeug/Heißluft
 - Messschieber (für die Maße der Halterung!)
 - 3D-Drucker
-- PC mit USB-C-Kabel, VS Code + PlatformIO **oder** Python + `pip install platformio`
+- PC mit Chrome/Edge und USB-C-Datenkabel (Web-Flasher). Für Entwickler: VS Code + PlatformIO **oder** Python + `pip install platformio`
 
 ---
 
@@ -112,14 +129,27 @@ Kurz erklärt:
 
 ## 4. Firmware aufspielen (Flashen)
 
+### Einfach: Web-Flasher (empfohlen)
+
+1. Board per **USB-C-Datenkabel** an den PC. Mühle dabei **ausgesteckt**.
+2. In **Chrome oder Edge (Desktop)** öffnen: **https://dobbynator94.github.io/EurekaMate/**
+3. Version **v0.1.0-beta** wählen → **„Installieren“** → Port wählen → beim ersten Mal **„Erase device“** anhaken → *Install*.
+4. 1–2 Minuten warten. Danach erscheint der **EurekaMate-Startbildschirm**.
+   - Kein Port? **BOOT** gedrückt halten, **RESET** kurz drücken, BOOT loslassen, nochmal.
+
+Ausführlich mit Bildern und Fehlersuche: **[BAUANLEITUNG.md, Schritt 8](BAUANLEITUNG.md#8-firmware-flashen-per-web-flasher)**.
+Die Dateien gibt es auch im [Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta).
+
+### Für Entwickler: selbst bauen mit PlatformIO
+
 1. Repository holen: `git clone https://github.com/DobbyNator94/EurekaMate.git`
 2. VS Code + Erweiterung **PlatformIO** installieren (oder `pip install platformio`).
 3. Ordner öffnen. Umgebung **`waveshare-esp32s3-touch-amoled-164`** wählen.
 4. Board per USB-C anschließen. **Upload** klicken bzw. `pio run -e waveshare-esp32s3-touch-amoled-164 -t upload`.
    - Wenn das Board nicht erkannt wird: **BOOT** gedrückt halten, **RESET** kurz drücken, BOOT loslassen, nochmal hochladen.
 5. Nach dem Neustart erscheint der **EurekaMate-Startbildschirm** und dann die normale Waage.
-6. Spätere Updates gehen **ohne Kabel** über die Weboberfläche (Reiter *Update*) oder wie im
-   Original per Bluetooth (Gerätename jetzt **EurekaMate**).
+6. Spätere Updates gehen **ohne Kabel** über die Weboberfläche (Reiter *Update*), per Bluetooth im
+   [Web-Flasher](https://dobbynator94.github.io/EurekaMate/) (Reiter *Update (Bluetooth)*, Gerätename **EurekaMate**).
 
 Zum Ausprobieren ohne GaggiMate gibt es die Umgebung **`…-mock`**, die eine Maschine simuliert,
 und `tools/mock_gaggimate.py` (falsches GaggiMate auf dem PC).
@@ -173,7 +203,8 @@ Wieder **Netzstecker ziehen**.
 
 ## 7. Halterung drucken und montieren
 
-Alles dazu steht in **[hardware/stepper-mount/README.md](../hardware/stepper-mount/README.md)**.
+Alles dazu steht in **[hardware/stepper-mount/README.md](../hardware/stepper-mount/README.md)**,
+mit Bildern aus mehreren Ansichten und Explosionszeichnung in **[BAUANLEITUNG.md, Schritt 7](BAUANLEITUNG.md#7-halter-montieren)**.
 Wichtig: **erst messen, dann drucken!** Werte mit `TODO-MEASURE` in `params.scad` anpassen
 (Zähnezahlen des Kits, Abstände des Knopfs, Gehäuseradius). Druck: PETG, 0,2 mm, 4 Wände.
 

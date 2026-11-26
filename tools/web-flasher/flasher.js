@@ -59,8 +59,10 @@ function resolveFirmwareUrl(relativePath) {
 
 // Browser support check and load releases
 window.addEventListener('load', () => {
-    if (!('bluetooth' in navigator)) {
+    if (!('serial' in navigator)) {
         document.getElementById('browserWarning').style.display = 'block';
+    }
+    if (!('bluetooth' in navigator)) {
         // Disable OTA tab if no Web Bluetooth
         const otaTab = document.querySelector('[onclick="showTab(\'ota\')"]');
         if (otaTab) {

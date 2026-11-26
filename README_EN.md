@@ -1,8 +1,25 @@
 # EurekaMate ☕⚙️
 
+> [!CAUTION]
+> **🇩🇪 ACHTUNG – BITTE ZUERST LESEN:** Dieses Projekt ist **komplett „vibe-coded“ (KI-generiert)** und
+> **komplett ungetestet** – weder die Firmware noch die Hardware, die Pläne oder die Anleitungen wurden an einer
+> echten Mühle ausprobiert. Es gibt **keinerlei Garantie, Gewährleistung oder Haftung für irgendetwas**.
+> **Jeder ist allein für sich selbst verantwortlich.** Arbeiten an **230-V-Geräten ist gefährlich** und kann
+> tödlich sein. **Wenn du nicht genau weißt, was du tust, lass es lieber ganz bleiben.**
+>
+> **🇬🇧 WARNING – READ THIS FIRST:** This project is **entirely vibe-coded (AI-generated)** and **completely
+> untested** – none of the firmware, hardware, schematics or guides have been tried on a real grinder. There is
+> **no guarantee, warranty or liability for anything whatsoever**. **Everyone is solely responsible for
+> themselves.** Working on **230 V devices is dangerous** and can kill you. **If you don't know exactly what
+> you're doing, better don't do anything at all.**
+
 **Eureka Mignon Specialità + GaggiMate Grind-by-Sync + motorized grind dial**
 
 🇩🇪 Deutsche Version: **[README.md](README.md)**
+
+| 🧸 **[Step-by-step build guide (with images)](docs/BUILD_GUIDE_EN.md)** | ⚡ **[Web flasher](https://dobbynator94.github.io/EurekaMate/)** | 📦 **[Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta)** |
+|:---:|:---:|:---:|
+| For beginners: 11 steps, one image per step | Install the firmware in your browser (Chrome/Edge + USB-C) | Pre-release, **untested on hardware** |
 
 EurekaMate turns a Eureka Mignon Specialità into a grinder that works with
 [GaggiMate](https://github.com/jniebuhr/gaggimate) the way a **Mahlkönig E64 WS** works with
@@ -110,13 +127,15 @@ Grind-by-weight, the touch UI, the scale and the BLE tools come from there. Many
 | Filament | – | PETG (housing, brace, pinion), TPU 95A (strap) | |
 | Fallback (optional) | 1 | 12 V / 2 A power supply | if the 12 V rail sags |
 
+Full list with prices and tools: **[docs/ANLEITUNG_EN.md](docs/ANLEITUNG_EN.md#1-shopping-list)** · with pictures: **[docs/BUILD_GUIDE_EN.md](docs/BUILD_GUIDE_EN.md#1-what-you-need)**.
+
 ---
 
 ## Wiring
 
 ![Schematic](docs/img/schaltplan.png)
 
-Full size: [SVG](docs/img/schaltplan.svg). Step-by-step guide (German): [docs/ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md).
+Full size: [SVG](docs/img/schaltplan.svg). Step by step: [docs/BUILD_GUIDE_EN.md](docs/BUILD_GUIDE_EN.md#5-connect-the-wires--one-at-a-time) · wiring table: [docs/ANLEITUNG_EN.md](docs/ANLEITUNG_EN.md#wiring-table).
 
 | Function | ESP32-S3 GPIO | Connects to |
 |---|---|---|
@@ -157,6 +176,24 @@ If that is not enough: a smaller pinion, more boost current, or a NEMA17 with a 
 
 ## Flashing
 
+### Easy: web flasher
+
+👉 **https://dobbynator94.github.io/EurekaMate/**
+
+1. Connect the board with a **USB-C data cable** (grinder unplugged).
+2. Open the page in **Chrome or Edge (desktop)**, choose **v0.1.0-beta**, click **“Install”**.
+3. Pick the port, tick **“Erase device”** the first time, *Install*, wait 1–2 minutes.
+
+Images and troubleshooting: [BUILD_GUIDE_EN.md, step 8](docs/BUILD_GUIDE_EN.md#8-flash-the-firmware-with-the-web-flasher).
+All files (app, bootloader, partitions, full image, BLE OTA, manifest, SHA256) are in
+[release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta).
+Without a browser: `esptool --chip esp32s3 write-flash 0x0 eurekamate-v0.1.0-beta-full.bin`.
+
+> The app goes into the **factory slot (0x20000)** and otadata is cleared, so a freshly flashed board
+> always boots the new firmware. Later OTA updates use ota_0/ota_1 as usual.
+
+### For developers: build it yourself
+
 ```bash
 git clone https://github.com/DobbyNator94/EurekaMate.git
 cd EurekaMate
@@ -165,7 +202,8 @@ pio run -e waveshare-esp32s3-touch-amoled-164 -t upload
 ```
 
 - Board not detected: hold **BOOT**, tap **RESET**, release BOOT, upload again.
-- Later updates without a cable: web UI → *Update* (`.pio/build/<env>/firmware.bin`) or over BLE.
+- Later updates without a cable: web UI → *Update* (`.pio/build/<env>/firmware.bin`) or over BLE in the [web flasher](https://dobbynator94.github.io/EurekaMate/) (*Update (Bluetooth)* tab).
+- Build a release: `python3 tools/build_release.py v0.1.0-beta --out ../eurekamate-release --site ../eurekamate-site` (creates the bins, manifest and the flasher site for the `gh-pages` branch).
 - Testing without a machine:
   - the `waveshare-esp32s3-touch-amoled-164-mock` env (simulated GaggiMate), or
   - `python3 tools/mock_gaggimate.py --port 8080 --auto`, with `<PC-IP>:8080` as the host.
@@ -276,7 +314,7 @@ The history shows why each shot was or was not used: `adjust`, `in_deadband`, `t
   - Single dosing per portion (filter = several doses).
 - [ ] Live status over WebSocket/SSE instead of polling
 - [ ] TMC2209 UART readback (diagnostics, temperature warnings)
-- [ ] Optional: web flasher with EurekaMate releases
+- [x] Web flasher with EurekaMate releases ([link](https://dobbynator94.github.io/EurekaMate/))
 
 ---
 
@@ -284,11 +322,15 @@ The history shows why each shot was or was not used: `adjust`, `in_deadband`, `t
 
 | Document | Content |
 |---|---|
-| [docs/ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md) | German beginner build guide |
+| [docs/BUILD_GUIDE_EN.md](docs/BUILD_GUIDE_EN.md) · 🇩🇪 [BAUANLEITUNG.md](docs/BAUANLEITUNG.md) | 🧸 Very simple step-by-step guide, one image per step, incl. web flasher |
+| [docs/ANLEITUNG_EN.md](docs/ANLEITUNG_EN.md) · 🇩🇪 [ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md) | Detailed guide: shopping list, tools, wiring table, measuring, soldering, flashing, wizard, troubleshooting |
+| [Web flasher](https://dobbynator94.github.io/EurekaMate/) · [Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta) | Install / download the firmware |
 | [docs/GAGGIMATE_GBS.md](docs/GAGGIMATE_GBS.md) | Protocol, regulation, power, torque, StallGuard, travel times, pins |
 | [hardware/stepper-mount/README.md](hardware/stepper-mount/README.md) | Motor mount: STL, dimensions, sources, printing, assembly |
 | [docs/img/schaltplan.png](docs/img/schaltplan.png) | Schematic (generated by `tools/gen_schematic.py`) |
 | [docs/DOC.md](docs/DOC.md), [docs/UPSTREAM_README.md](docs/UPSTREAM_README.md) | Original smart-grind-by-weight docs (scale, display, BLE tools) |
+
+> 🌍 Rule: every German document has an English version, and both are kept in sync.
 
 ---
 

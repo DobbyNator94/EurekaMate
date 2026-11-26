@@ -52,7 +52,7 @@ Then:
 | Layer height | 0.2 mm (pinion: 0.12–0.16 mm gives better teeth) |
 | Walls | 4 perimeters |
 | Infill | 30–40 % gyroid (pinion: 100 %) |
-| Supports | Housing: none (feet chamfered). Brace: supports for the outer shelf only. Lid: print flat face down (STL is already flipped) |
+| Supports | Housing: none (feet chamfered). Brace: upright as exported, tree supports under the top arm and the outer shelf. Lid: print flat face down (STL is already flipped) |
 | Orientation | Pinion with the teeth down. Strap flat |
 
 Hardware: M3×8 (4×, motor), M3×6 (4×, lid), M3×10 + washers (2×, housing feet to brace posts;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Grind By Weight - Firmware Flasher</title>
+    <title>EurekaMate – Web-Flasher</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -210,13 +210,31 @@
         #browserWarning {
             display: none;
         }
+        .beta-warning { background: #fff4e5; border: 2px solid #ff9500; color: #7a4100; border-radius: 10px; padding: 14px 16px; margin: 0 0 18px; line-height: 1.5; }
+        .intro { background: #f4f7fb; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; line-height: 1.5; }
+        .intro .en { color: #555; font-size: 0.92em; }
+        .footer { margin-top: 24px; font-size: 0.85em; color: #777; text-align: center; line-height: 1.5; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Smart Grind By Weight</h1>
-            <div class="subtitle">Firmware Flash Tool</div>
+            <h1>EurekaMate</h1>
+            <div class="subtitle">Web-Flasher · Firmware installieren / Firmware installer</div>
+        </div>
+
+        <div class="beta-warning">
+            <strong>⚠️ BETA – noch nicht an echter Hardware getestet.</strong>
+            Nutzung auf eigene Gefahr. Vor Arbeiten an der Mühle immer den Netzstecker ziehen (230 V!).<br>
+            <em>EN: Beta firmware, not yet tested on real hardware. Use at your own risk. Always unplug the grinder before working on it.</em>
+        </div>
+
+        <div class="intro">
+            <p><strong>So geht's:</strong> Waveshare-Board per <strong>USB-C-Datenkabel</strong> an den PC, in
+            <strong>Chrome oder Edge (Desktop)</strong> auf „Installieren“ klicken, Port wählen, warten. Fertig.
+            Ausführliche Anleitung mit Bildern: <a href="https://github.com/DobbyNator94/EurekaMate/blob/main/docs/BAUANLEITUNG.md#8-firmware-flashen-per-web-flasher">Bauanleitung, Schritt 8</a>.</p>
+            <p class="en"><strong>EN:</strong> Connect the Waveshare board with a USB-C <em>data</em> cable, open this page in desktop Chrome/Edge,
+            click “Install”, pick the serial port and wait. Updates later: over WiFi (web UI) or Bluetooth (tab below).</p>
         </div>
         
         <div id="browserWarning" class="browser-support">
@@ -230,16 +248,17 @@
         </div>
         
         <div class="tabs">
-            <button class="tab active" onclick="showTab('ota')">OTA Update (BLE)</button>
-            <button class="tab" onclick="showTab('initial')">Initial Setup (USB)</button>
-            <button class="tab" onclick="showTab('diagnostics')">Diagnostics</button>
+            <button class="tab active" onclick="showTab('initial')">1. Installieren (USB)</button>
+            <button class="tab" onclick="showTab('ota')">Update (Bluetooth)</button>
+            <button class="tab" onclick="showTab('diagnostics')">Diagnose</button>
         </div>
         
         <!-- Initial Setup Tab -->
-        <div id="initialTab" class="tab-content">
+        <div id="initialTab" class="tab-content active">
             <div class="section">
-                <h3>🔌 Initial Setup - USB Connection</h3>
-                <p>For first-time installation or when the grinder is easily accessible, use ESP Web Tools to flash firmware via USB.</p>
+                <h3>🔌 Erstinstallation per USB / First install via USB</h3>
+                <p>Für die erste Installation (oder zur Rettung). Board per USB-C anschließen, Version wählen, „Installieren“ klicken.
+                Wird kein Port angezeigt: <strong>BOOT</strong> gedrückt halten, <strong>RESET</strong> kurz drücken, BOOT loslassen, nochmal versuchen.</p>
                 
             </div>
             
@@ -247,8 +266,8 @@
                 <label for="usbFirmwareSelect">Select Firmware Version</label>
                 <div style="margin-bottom: 10px;">
                     <label style="font-weight: normal; display: flex; align-items: center;">
-                        <input type="checkbox" id="showReleaseCandidate" onchange="loadReleases()" style="margin-right: 8px;">
-                        Show release candidates (RC, beta, alpha)
+                        <input type="checkbox" id="showReleaseCandidate" onchange="loadReleases()" style="margin-right: 8px;" checked>
+                        Beta-Versionen anzeigen / show beta releases
                     </label>
                 </div>
                 <select id="usbFirmwareSelect" onchange="updateManifestFirmware()">
@@ -257,9 +276,9 @@
             </div>
             
             <esp-web-install-button id="usbInstallButton">
-                <button slot="activate" class="btn">Flash via USB (ESP Web Tools)</button>
-                <span slot="unsupported">Your browser does not support installing things on ESP devices. Use Google Chrome or Microsoft Edge.</span>
-                <span slot="not-allowed">You can only install ESP devices on HTTPS websites or on the localhost.</span>
+                <button slot="activate" class="btn">⚡ Installieren / Install (USB)</button>
+                <span slot="unsupported">Dein Browser kann keine ESP-Geräte flashen. Bitte <strong>Chrome oder Edge am PC/Mac</strong> verwenden (nicht Firefox, Safari oder iPhone). / Use desktop Chrome or Edge.</span>
+                <span slot="not-allowed">Nur über HTTPS oder localhost möglich. / Only works on HTTPS or localhost.</span>
             </esp-web-install-button>
             
             <div id="usbStatus" class="status info" style="display: none;">
@@ -268,18 +287,19 @@
         </div>
         
         <!-- OTA Update Tab -->
-        <div id="otaTab" class="tab-content active">
+        <div id="otaTab" class="tab-content">
             <div class="section">
-                <h3>📶 OTA Update - Bluetooth Connection</h3>
-                <p>For updates after installation when USB access is limited. Requires firmware to be installed via USB first.</p>
+                <h3>📶 Update per Bluetooth / Update over Bluetooth</h3>
+                <p>Für spätere Updates ohne Kabel (EurekaMate muss schon per USB installiert sein). Einfacher: Weboberfläche
+                <code>http://eurekamate.local</code> → Reiter „Update“.</p>
             </div>
             
             <div class="form-group">
                 <label for="firmwareSelect">Select Firmware Version (OTA)</label>
                 <div style="margin-bottom: 10px;">
                     <label style="font-weight: normal; display: flex; align-items: center;">
-                        <input type="checkbox" id="showReleaseCandidateOTA" onchange="loadReleases()" style="margin-right: 8px;">
-                        Show release candidates (RC, beta, alpha)
+                        <input type="checkbox" id="showReleaseCandidateOTA" onchange="loadReleases()" style="margin-right: 8px;" checked>
+                        Beta-Versionen anzeigen / show beta releases
                     </label>
                 </div>
                 <select id="firmwareSelect" onchange="updateOtaSelectedFirmware()">
@@ -338,6 +358,9 @@
         </div>
     </div>
 
+    <div class="footer">EurekaMate · <a href="https://github.com/DobbyNator94/EurekaMate">GitHub</a> ·
+    basiert auf <a href="https://github.com/jaapp/smart-grind-by-weight">smart-grind-by-weight</a> von jaapp (GPLv3) ·
+    USB-Flashen mit <a href="https://esphome.github.io/esp-web-tools/">ESP Web Tools</a></div>
     <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
     <script src="flasher.js"></script>
 </body>

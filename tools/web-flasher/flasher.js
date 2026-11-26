@@ -1,4 +1,4 @@
-// Smart Grind By Weight - Web Bluetooth Flasher
+// EurekaMate Web Flasher (based on the smart-grind-by-weight flasher by jaapp)
 // Based on your existing Python BLE implementation
 
 // Firmware index metadata

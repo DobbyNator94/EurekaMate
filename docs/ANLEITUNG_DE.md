@@ -61,7 +61,7 @@ auf. Danke an jaapp! Lizenzen: Software GPLv3, Hardware CERN-OHL-S v2.
 | 12 | Taster (Schließer) | 1 | **optional**, Brüh-Start (alternativ Original-Fronttaste) | 1 € |
 | 13 | Mikroschalter als Endschalter | 1 | **optional** | 1 € |
 | 14 | Litze 22 AWG (Silikon), Dupont-/JST-PH-Stecker, Schrumpfschlauch | – | | 10 € |
-| 15 | Schrauben M3: 4× 8 mm, 4× 6 mm, 2× 10 mm + Scheiben, 1× 30 mm + Mutter, 1× Madenschraube M3×4 + Mutter | – | evtl. Gewindeeinsätze M3 | 5 € |
+| 15 | Schrauben M3: 4× 6 mm (Motor), 4× 8 mm (Deckel), 2× 10 mm + Scheiben, 1× 30 mm + Mutter, 1× Madenschraube M3×4 + Mutter; 6× Einschmelzmutter M3×5,7 (ruthex RX-M3x5.7, 4,0-mm-Loch) | – | ohne Inserts: `heat_inserts = false` | 5 € (Nachkauf ≈ 30 €, siehe [Einkaufsliste](EINKAUFSLISTE_DE.md)) |
 | 16 | Filament **PETG** (Gehäuse, Halter, Ritzel), **TPU 95A** (Spannband) | – | | – |
 | 17 | Optional: Netzteil **12 V / 2 A** + Hohlbuchse | 1 | **Fallback**, falls die 12-V-Schiene zu schwach ist | 10 € |
 

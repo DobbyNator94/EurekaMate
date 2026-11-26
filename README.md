@@ -17,9 +17,9 @@
 
 🇬🇧 English version: **[README_EN.md](README_EN.md)**
 
-| 🧸 **[Bauanleitung Schritt für Schritt (mit Bildern)](docs/BAUANLEITUNG.md)** | ⚡ **[Web-Flasher](https://dobbynator94.github.io/EurekaMate/)** | 📦 **[Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta)** |
-|:---:|:---:|:---:|
-| Für Einsteiger: 11 Schritte, ein Bild pro Schritt | Firmware im Browser installieren (Chrome/Edge + USB-C) | Vorabversion, **ungetestet auf Hardware** |
+| 🧸 **[Bauanleitung Schritt für Schritt (mit Bildern)](docs/BAUANLEITUNG.md)** | ⚡ **[Web-Flasher](https://dobbynator94.github.io/EurekaMate/)** | 📦 **[Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta)** | 🛒 **[Einkaufsliste Deutschland](docs/EINKAUFSLISTE_DE.md)** |
+|:---:|:---:|:---:|:---:|
+| Für Einsteiger: 11 Schritte, ein Bild pro Schritt | Firmware im Browser installieren (Chrome/Edge + USB-C) | Vorabversion, **ungetestet auf Hardware** | Günstigste Amazon-/eBay-Quellen inkl. Versand, Stand 26.11.2026 |
 
 EurekaMate macht aus einer Eureka Mignon Specialità eine Mühle, die mit
 [GaggiMate](https://github.com/jniebuhr/gaggimate) so zusammenarbeitet wie eine **Mahlkönig E64 WS**
@@ -140,11 +140,11 @@ auf. Grind-by-Weight, das Touch-UI, die Waage und die BLE-Tools stammen von dort
 | Encoder (optional) | 1 | [AS5600](https://ams-osram.com/products/sensor-solutions/position-sensors/ams-as5600-position-sensor)-Platine + Diametral-Magnet 6×2,5 mm | |
 | Taster (optional) | 1 | Schließer nach GND | oder Original-Fronttaste |
 | Endschalter (optional) | 1 | Mikroschalter | grobes Ende |
-| Kleinteile | – | Litze 22 AWG, JST-PH 4-pol., Dupont, Schrumpfschlauch, M3-Schrauben (8/6/10/30 mm), M3-Madenschraube, Gewindeeinsätze | |
+| Kleinteile | – | Litze 22 AWG, JST-PH 4-pol., Dupont, Schrumpfschlauch, M3-Schrauben (6/8/10/30 mm), M3-Madenschraube, 6× Einschmelzmutter M3×5,7 | |
 | Filament | – | PETG (Gehäuse, Halter, Ritzel), TPU 95A (Spannband) | |
 | Fallback (optional) | 1 | Netzteil 12 V / 2 A | falls die 12-V-Schiene einbricht |
 
-Ausführliche Liste mit Preisen und Werkzeug: **[docs/ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md#1-einkaufsliste)** · mit Bildern: **[docs/BAUANLEITUNG.md](docs/BAUANLEITUNG.md#1-was-du-brauchst)**.
+🛒 **Einkaufsliste mit geprüften Links, Versand und Summen: [docs/EINKAUFSLISTE_DE.md](docs/EINKAUFSLISTE_DE.md)** (🇬🇧 [SHOPPING_LIST_EN.md](docs/SHOPPING_LIST_EN.md)) · Ausführliche Liste mit Werkzeug: **[docs/ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md#1-einkaufsliste)** · mit Bildern: **[docs/BAUANLEITUNG.md](docs/BAUANLEITUNG.md#1-was-du-brauchst)**.
 
 ---
 
@@ -333,6 +333,7 @@ Im Verlauf steht zu jedem Bezug, warum korrigiert wurde oder nicht (`adjust`, `i
 | Dokument | Inhalt |
 |---|---|
 | [docs/BAUANLEITUNG.md](docs/BAUANLEITUNG.md) · 🇬🇧 [BUILD_GUIDE_EN.md](docs/BUILD_GUIDE_EN.md) | 🧸 Ganz einfache Schritt-für-Schritt-Anleitung, ein Bild pro Schritt, inkl. Web-Flasher |
+| [docs/EINKAUFSLISTE_DE.md](docs/EINKAUFSLISTE_DE.md) · 🇬🇧 [SHOPPING_LIST_EN.md](docs/SHOPPING_LIST_EN.md) | 🛒 Einkaufsliste Deutschland: günstigste Amazon-Prime-/eBay-Quellen, Versand, Summen, Schrauben-Checkliste |
 | [docs/ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md) · 🇬🇧 [ANLEITUNG_EN.md](docs/ANLEITUNG_EN.md) | Ausführliche Anleitung: Einkaufsliste, Werkzeug, Verdrahtungstabelle, Messen, Löten, Flashen, Assistent, Fehlersuche |
 | [Web-Flasher](https://dobbynator94.github.io/EurekaMate/) · [Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta) | Firmware installieren / herunterladen |
 | [docs/GAGGIMATE_GBS.md](docs/GAGGIMATE_GBS.md) | Protokoll, Regelung, Strom, Drehmoment, StallGuard, Fahrzeiten, Pins (Englisch) |

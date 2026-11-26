@@ -47,8 +47,8 @@ module brace() {
             // tensioner rail at the rear end of the plate (see strap.scad)
             translate([side_x + brace_t, y0 + plate_l - 26, strap_slot_z - strap_w / 2 - 4]) cube([10, 26, strap_w + 8]);
         }
-        // M3 holes in both posts (heat insert 4.2 mm or self-tapping 2.6 mm)
-        for (f = foot_w) translate([f[0], f[1], -brace_h]) cylinder(d = 2.6, h = brace_h + floor_z + 5);
+        // M3 holes in both posts: heat insert (m3_thread_d = 4.0) or self-tapping (2.6), see params.scad
+        for (f = foot_w) translate([f[0], f[1], -brace_h]) cylinder(d = m3_thread_d, h = brace_h + floor_z + 5);
         // front strap slot: the strap end loops through it
         translate([side_x - 1, y0 + 4, strap_slot_z - strap_w / 2 - 0.5]) cube([brace_t + 2, 3, strap_w + 1]);
         // rear tensioner channel: slider runs in y, pulled by an M3 screw from the rear end

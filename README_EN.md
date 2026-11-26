@@ -17,9 +17,9 @@
 
 🇩🇪 Deutsche Version: **[README.md](README.md)**
 
-| 🧸 **[Step-by-step build guide (with images)](docs/BUILD_GUIDE_EN.md)** | ⚡ **[Web flasher](https://dobbynator94.github.io/EurekaMate/)** | 📦 **[Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta)** |
-|:---:|:---:|:---:|
-| For beginners: 11 steps, one image per step | Install the firmware in your browser (Chrome/Edge + USB-C) | Pre-release, **untested on hardware** |
+| 🧸 **[Step-by-step build guide (with images)](docs/BUILD_GUIDE_EN.md)** | ⚡ **[Web flasher](https://dobbynator94.github.io/EurekaMate/)** | 📦 **[Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta)** | 🛒 **[Shopping list (DE/EU)](docs/SHOPPING_LIST_EN.md)** |
+|:---:|:---:|:---:|:---:|
+| For beginners: 11 steps, one image per step | Install the firmware in your browser (Chrome/Edge + USB-C) | Pre-release, **untested on hardware** | Cheapest Amazon/eBay sources incl. shipping, as of 26 Nov 2026 |
 
 EurekaMate turns a Eureka Mignon Specialità into a grinder that works with
 [GaggiMate](https://github.com/jniebuhr/gaggimate) the way a **Mahlkönig E64 WS** works with
@@ -123,11 +123,11 @@ Grind-by-weight, the touch UI, the scale and the BLE tools come from there. Many
 | Encoder (optional) | 1 | [AS5600](https://ams-osram.com/products/sensor-solutions/position-sensors/ams-as5600-position-sensor) board + 6×2.5 mm diametric magnet | |
 | Button (optional) | 1 | Normally open, to GND | or the original front button |
 | Endstop (optional) | 1 | Microswitch | coarse end |
-| Small parts | – | 22 AWG wire, 4-pin JST-PH, Dupont, heat shrink, M3 screws (8/6/10/30 mm), M3 grub screw, heat inserts | |
+| Small parts | – | 22 AWG wire, 4-pin JST-PH, Dupont, heat shrink, M3 screws (6/8/10/30 mm), M3 grub screw, 6× M3×5.7 heat-set inserts | |
 | Filament | – | PETG (housing, brace, pinion), TPU 95A (strap) | |
 | Fallback (optional) | 1 | 12 V / 2 A power supply | if the 12 V rail sags |
 
-Full list with prices and tools: **[docs/ANLEITUNG_EN.md](docs/ANLEITUNG_EN.md#1-shopping-list)** · with pictures: **[docs/BUILD_GUIDE_EN.md](docs/BUILD_GUIDE_EN.md#1-what-you-need)**.
+🛒 **Shopping list with verified links, shipping and totals: [docs/SHOPPING_LIST_EN.md](docs/SHOPPING_LIST_EN.md)** (🇩🇪 [EINKAUFSLISTE_DE.md](docs/EINKAUFSLISTE_DE.md)) · Full list with tools: **[docs/ANLEITUNG_EN.md](docs/ANLEITUNG_EN.md#1-shopping-list)** · with pictures: **[docs/BUILD_GUIDE_EN.md](docs/BUILD_GUIDE_EN.md#1-what-you-need)**.
 
 ---
 
@@ -323,6 +323,7 @@ The history shows why each shot was or was not used: `adjust`, `in_deadband`, `t
 | Document | Content |
 |---|---|
 | [docs/BUILD_GUIDE_EN.md](docs/BUILD_GUIDE_EN.md) · 🇩🇪 [BAUANLEITUNG.md](docs/BAUANLEITUNG.md) | 🧸 Very simple step-by-step guide, one image per step, incl. web flasher |
+| [docs/SHOPPING_LIST_EN.md](docs/SHOPPING_LIST_EN.md) · 🇩🇪 [EINKAUFSLISTE_DE.md](docs/EINKAUFSLISTE_DE.md) | 🛒 Shopping list (Germany/EU): cheapest Amazon Prime/eBay sources, shipping, totals, screw checklist |
 | [docs/ANLEITUNG_EN.md](docs/ANLEITUNG_EN.md) · 🇩🇪 [ANLEITUNG_DE.md](docs/ANLEITUNG_DE.md) | Detailed guide: shopping list, tools, wiring table, measuring, soldering, flashing, wizard, troubleshooting |
 | [Web flasher](https://dobbynator94.github.io/EurekaMate/) · [Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta) | Install / download the firmware |
 | [docs/GAGGIMATE_GBS.md](docs/GAGGIMATE_GBS.md) | Protocol, regulation, power, torque, StallGuard, travel times, pins |

@@ -55,13 +55,13 @@ Then:
 | Supports | Housing: none (feet chamfered). Brace: upright as exported, tree supports under the top arm and the outer shelf. Lid: print flat face down (STL is already flipped) |
 | Orientation | Pinion with the teeth down. Strap flat |
 
-Hardware: M3×8 (4×, motor), M3×6 (4×, lid), M3×10 + washers (2×, housing feet to brace posts;
-use heat inserts M3×4×5 for 4.2 mm holes or self-tap 2.6 mm), M3×30 + M3 nut (tensioner),
+Hardware: M3×6 (4×, motor – the NEMA17 thread is only ~4.5 mm deep), M3×8 (4×, lid), M3×10 + washers (2×, housing feet to brace posts),
+6× M3 heat-set inserts ruthex RX-M3x5.7 (4 lid bosses + 2 brace posts; 4.0 mm holes, set `heat_inserts = false` in `params.scad` for 2.6 mm self-tap holes), M3×30 + M3 nut (tensioner),
 M3×4 grub screw + nut (pinion), zip ties 2.5 mm.
 
 ## Assembly
 
-1. Fit the motor into the housing, shaft down through the floor. Screw it in with 4× M3×8 from below.
+1. Fit the motor into the housing, shaft down through the floor. Screw it in with 4× M3×6 from below.
 2. Push the pinion onto the shaft with the grub screw on the D-flat. Line its teeth up with the height of the knob gear teeth, then tighten.
 3. Put the TMC2209 (heatsink toward the side vents), the buck and the capacitor in their spots. Wire them per [`../../docs/img/schaltplan.png`](../../docs/img/schaltplan.png).
 4. Slide the brace on from below along the right side until the arm sits on the top edge.

@@ -26,7 +26,7 @@ Diese Anleitung ist für Einsteiger. Kurze Sätze, ein Bild pro Schritt. Arbeite
 
 **Links:** [⚡ Web-Flasher](https://dobbynator94.github.io/EurekaMate/) ·
 [📦 Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta) ·
-[📘 Ausführliche Anleitung](ANLEITUNG_DE.md) · [🔌 Schaltplan](img/schaltplan.png)
+[📘 Ausführliche Anleitung](ANLEITUNG_DE.md) · [🛒 Einkaufsliste](EINKAUFSLISTE_DE.md) · [🔌 Schaltplan](img/schaltplan.png)
 
 ## Übersicht
 
@@ -52,22 +52,25 @@ Diese Anleitung ist für Einsteiger. Kurze Sätze, ein Bild pro Schritt. Arbeite
 
 ![Einkaufsliste](img/bauanleitung/01_einkaufsliste.png)
 
-| # | Teil | Menge | ca. Preis |
+| # | Teil | Menge | Preis (Stand 26.11.2026) |
 |---|---|---|---|
-| 1 | Waveshare **ESP32-S3-Touch-AMOLED-1.64** | 1 | 25 € |
-| 2 | Wägezelle 500 g–1 kg + **HX711** | 1 | 8 € |
-| 3 | **NEMA17** Schrittmotor 17HS4401 (für AS5600: Doppelwelle) | 1 | 10–15 € |
-| 4 | **TMC2209** Treiber mit Kühlkörper | 1 | 6 € |
-| 5 | **Step-Down 5 V** (MP1584 einstellbar oder Mini560 fest 5 V) | 1 | 3 € |
-| 6 | Elko **100–470 µF / 25 V** (für den Motortreiber) | 1 | 0,50 € |
-| 7 | Elko **1000 µF / 10 V** (für den ESP) | 1 | 0,50 € |
-| 8 | Widerstand **1 kΩ** | 1 | 0,10 € |
-| 9 | **Sicherung 1 A** + Halter (oder Polyfuse) | 1 | 1 € |
-| 10 | Zahnrad-Knopf-Kit für Eureka Mignon | 1 | – |
-| 11 | Litze 22 AWG, Dupont-/JST-PH-Stecker, Schrumpfschlauch | – | 10 € |
-| 12 | Schrauben M3 (4× 8 mm, 4× 6 mm, 2× 10 mm + Scheiben, 1× 30 mm + Mutter, Madenschraube M3×4 + Mutter) | – | 5 € |
+| 1 | Waveshare **ESP32-S3-Touch-AMOLED-1.64** | 1 | 33,99 € |
+| 2 | Wägezelle **T70 1 kg** + **HX711**-Modul | 1 | 28,53 € + 5,49 € |
+| 3 | **NEMA17** Schrittmotor 17HS4417P1 / 17HS4401, 40 mm (für AS5600: Doppelwelle 17HS8401B) | 1 | 6,99 € (14,58 €) |
+| 4 | **TMC2209** Treiber mit Kühlkörper | 1 | 8,49 € |
+| 5 | **Step-Down 5 V** MP1584 (auf 5,0 V einstellen) | 1 | 5,99 € (5er) |
+| 6 | Elko **100–470 µF / 25 V** (für den Motortreiber, z. B. 220 µF) | 1 | 3,45 € (24er) |
+| 7 | Elko **1000 µF / ≥10 V** (für den ESP) | 1 | 4,59 € (10er) |
+| 8 | Widerstand **1 kΩ** | 1 | 5,99 € (Sortiment) |
+| 9 | **Sicherung 1 A** flink + Inline-Halter | 1 | 3,89 € + 6,49 € |
+| 10 | Zahnrad-Einstellrad-Kit für Eureka Mignon (ARO) | 1 | 42,00 € |
+| 11 | Litze 22 AWG, JST-PH-4-pol./Dupont, Schrumpfschlauch, Kabelbinder | – | 37,24 € (Sets) |
+| 12 | Schrauben M3 (4× 6 mm Motor, 4× 8 mm Deckel, 2× 10 mm + Scheiben, 1× 30 mm + Mutter, Madenschraube M3×4 + Mutter) + 6× Einschmelzmutter M3×5,7 | – | 30,18 € (falls nicht vorhanden) |
 | 13 | Filament **PETG** + **TPU 95A** | – | – |
-| opt. | AS5600 + Magnet 6×2,5 mm · Endschalter · Netzteil 12 V/2 A | – | 3–10 € |
+| opt. | AS5600 + Magnet 6×2,5 mm · Endschalter · Netzteil 12 V/2 A | – | 51,13 € (alles) |
+
+🛒 **Komplette Einkaufsliste mit geprüften Amazon-Links, Versandkosten und Summen: [EINKAUFSLISTE_DE.md](EINKAUFSLISTE_DE.md)**
+(Pflicht ≈ 193 € ohne / ≈ 223 € mit Schrauben & Inserts, Stand 26.11.2026)
 
 Zusätzlich brauchst du die **Waagen- und Display-Teile von smart-grind-by-weight** (siehe [DOC.md](DOC.md)).
 
@@ -235,8 +238,8 @@ Gesamtplan: [Schaltplan](img/schaltplan.png) · Tabelle: [ANLEITUNG_DE.md § 3](
 |---|---|
 | ![](img/bauanleitung/07a_halter.png) | **7a.** Seitenhalter von **unten** an die **rechte** Seite schieben, bis der obere Arm auf der Kante liegt. |
 | ![](img/bauanleitung/07b_band.png) | **7b.** Spannband (4 Glieder) einmal um die Mühle. Vorne einhängen, hinten in den Spannschieber. M3×30 festziehen – fest, aber nicht brutal. |
-| ![](img/bauanleitung/07c_gehaeuse.png) | **7c.** Motor mit 4× M3×8 ins Gehäuse (Welle nach unten). Ritzel aufstecken, Madenschraube auf die flache Seite. Elektronik einsetzen. Gehäuse mit 2× M3×10 + Scheiben auf die Säulen. |
-| ![](img/bauanleitung/07d_deckel.png) | **7d.** **Zahnspiel einstellen:** Gehäuse im Langloch zum Knopf schieben, bis die Zahnräder greifen. Minimal zurück (ein Blatt Papier). Festziehen. Deckel mit 4× M3×6 drauf. |
+| ![](img/bauanleitung/07c_gehaeuse.png) | **7c.** Motor mit 4× **M3×6** ins Gehäuse (nicht länger – das Motorgewinde ist nur ~4,5 mm tief) (Welle nach unten). Ritzel aufstecken, Madenschraube auf die flache Seite. Elektronik einsetzen. Gehäuse mit 2× M3×10 + Scheiben auf die Säulen. |
+| ![](img/bauanleitung/07d_deckel.png) | **7d.** **Zahnspiel einstellen:** Gehäuse im Langloch zum Knopf schieben, bis die Zahnräder greifen. Minimal zurück (ein Blatt Papier). Festziehen. Deckel mit 4× **M3×8** drauf (in die Einschmelzmuttern). |
 
 ✅ **Test:** Mühle aus. Rad einmal von Hand über den ganzen Bereich drehen. Es darf **nirgends klemmen**.
 

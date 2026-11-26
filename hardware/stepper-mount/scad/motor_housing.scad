@@ -5,7 +5,8 @@
 //    5 V buck (MP1584/Mini560), 100-470 uF bulk capacitor.
 //  - Optional AS5600 on the pinion axis, held by the lid above the REAR shaft magnet.
 //  - Cable exit through the floor towards the grinder bottom, zip-tie strain relief.
-//  - Removable lid with 4x M3 screws.
+//  - Removable lid with 4x M3x8 screws (heat inserts in the bosses, see params.scad).
+//  - Motor: 4x M3x6 from below (NEMA17 threads are only ~4.5 mm deep - M3x8 would bottom out).
 //  - Feet with slots (along the pinion->knob line) for gear-mesh adjustment.
 include <params.scad>
 
@@ -76,7 +77,7 @@ module housing() {
     }
     // lid screw bosses
     for (p = lid_screws()) translate([p[0], p[1], box_h - 10]) difference() {
-        cylinder(d = 7, h = 10);
+        cylinder(d = lid_boss_d, h = 10);
         translate([0, 0, -1]) cylinder(d = lid_screw_d, h = 12);
     }
 }
@@ -89,7 +90,7 @@ module lid() {
             translate([wall + 0.3, wall + 0.3, -2]) difference() {
                 rounded_box(box_w - 2 * wall - 0.6, box_l - 2 * wall - 0.6, 2, 2);
                 translate([1.6, 1.6, -1]) rounded_box(box_w - 2 * wall - 3.8, box_l - 2 * wall - 3.8, 4, 1);
-                for (p = lid_screws()) translate([p[0] - wall - 0.3, p[1] - wall - 0.3, -1]) cylinder(d = 8, h = 5);
+                for (p = lid_screws()) translate([p[0] - wall - 0.3, p[1] - wall - 0.3, -1]) cylinder(d = lid_boss_d + 1, h = 5);
             }
             // AS5600 holder above the rear shaft (pinion axis)
             if (as5600) {

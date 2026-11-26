@@ -27,7 +27,7 @@ This guide is for beginners. Short sentences, one image per step. Do the steps *
 
 **Links:** [⚡ Web flasher](https://dobbynator94.github.io/EurekaMate/) ·
 [📦 Release v0.1.0-beta](https://github.com/DobbyNator94/EurekaMate/releases/tag/v0.1.0-beta) ·
-[📘 Detailed guide](ANLEITUNG_EN.md) · [🔌 Schematic](img/schaltplan.png)
+[📘 Detailed guide](ANLEITUNG_EN.md) · [🛒 Shopping list](SHOPPING_LIST_EN.md) · [🔌 Schematic](img/schaltplan.png)
 
 ## Overview
 
@@ -53,22 +53,25 @@ This guide is for beginners. Short sentences, one image per step. Do the steps *
 
 ![Shopping list](img/bauanleitung/01_einkaufsliste.png)
 
-| # | Part | Qty | approx. price |
+| # | Part | Qty | Price (as of 26 Nov 2026) |
 |---|---|---|---|
-| 1 | Waveshare **ESP32-S3-Touch-AMOLED-1.64** | 1 | €25 |
-| 2 | Load cell 500 g–1 kg + **HX711** | 1 | €8 |
-| 3 | **NEMA17** stepper 17HS4401 (for AS5600: dual shaft) | 1 | €10–15 |
-| 4 | **TMC2209** driver with heatsink | 1 | €6 |
-| 5 | **5 V buck converter** (MP1584 adjustable or Mini560 fixed 5 V) | 1 | €3 |
-| 6 | Capacitor **100–470 µF / 25 V** (motor driver) | 1 | €0.50 |
-| 7 | Capacitor **1000 µF / 10 V** (ESP) | 1 | €0.50 |
-| 8 | Resistor **1 kΩ** | 1 | €0.10 |
-| 9 | **1 A fuse** + holder (or polyfuse) | 1 | €1 |
-| 10 | Gear knob kit for Eureka Mignon | 1 | – |
-| 11 | 22 AWG wire, Dupont/JST-PH plugs, heat shrink | – | €10 |
-| 12 | M3 screws (4× 8 mm, 4× 6 mm, 2× 10 mm + washers, 1× 30 mm + nut, M3×4 grub screw + nut) | – | €5 |
+| 1 | Waveshare **ESP32-S3-Touch-AMOLED-1.64** | 1 | €33.99 |
+| 2 | Load cell **T70 1 kg** + **HX711** module | 1 | €28.53 + €5.49 |
+| 3 | **NEMA17** stepper 17HS4417P1 / 17HS4401, 40 mm (for AS5600: dual shaft 17HS8401B) | 1 | €6.99 (€14.58) |
+| 4 | **TMC2209** driver with heatsink | 1 | €8.49 |
+| 5 | **5 V buck converter** MP1584 (set to 5.0 V) | 1 | €5.99 (5-pack) |
+| 6 | Capacitor **100–470 µF / 25 V** (motor driver, e.g. 220 µF) | 1 | €3.45 (24-pack) |
+| 7 | Capacitor **1000 µF / ≥10 V** (ESP) | 1 | €4.59 (10-pack) |
+| 8 | Resistor **1 kΩ** | 1 | €5.99 (assortment) |
+| 9 | **1 A fast fuse** + inline holder | 1 | €3.89 + €6.49 |
+| 10 | Gear dial kit for Eureka Mignon (ARO) | 1 | €42.00 |
+| 11 | 22 AWG wire, 4-pin JST-PH/Dupont, heat shrink, cable ties | – | €37.24 (sets) |
+| 12 | M3 screws (4× 6 mm motor, 4× 8 mm lid, 2× 10 mm + washers, 1× 30 mm + nut, M3×4 grub screw + nut) + 6× M3×5.7 heat-set inserts | – | €30.18 (if not on hand) |
 | 13 | **PETG** + **TPU 95A** filament | – | – |
-| opt. | AS5600 + 6×2.5 mm magnet · endstop · 12 V/2 A power supply | – | €3–10 |
+| opt. | AS5600 + 6×2.5 mm magnet · endstop · 12 V/2 A power supply | – | €51.13 (all) |
+
+🛒 **Full shopping list with verified Amazon links, shipping and totals: [SHOPPING_LIST_EN.md](SHOPPING_LIST_EN.md)**
+(required ≈ €193 without / ≈ €223 with screws & inserts, as of 26 Nov 2026)
 
 You also need the **scale and display parts from smart-grind-by-weight** (see [DOC.md](DOC.md)).
 
@@ -236,8 +239,8 @@ Full plan: [schematic](img/schaltplan.png) · table: [ANLEITUNG_EN.md § 3](ANLE
 |---|---|
 | ![](img/bauanleitung/07a_halter.png) | **7a.** Slide the side brace on from **below** along the **right** side until the top arm rests on the edge. |
 | ![](img/bauanleitung/07b_band.png) | **7b.** Put the strap (4 segments) once around the grinder. Hook it in at the front and into the tension slider at the back. Tighten the M3×30 – firm, not brutal. |
-| ![](img/bauanleitung/07c_gehaeuse.png) | **7c.** Motor into the housing with 4× M3×8 (shaft down). Push on the pinion, grub screw on the flat. Fit the electronics. Mount the housing on the posts with 2× M3×10 + washers. |
-| ![](img/bauanleitung/07d_deckel.png) | **7d.** **Set the gear mesh:** slide the housing along the slots toward the knob until the gears mesh. Back off a hair (one sheet of paper). Tighten. Close the lid with 4× M3×6. |
+| ![](img/bauanleitung/07c_gehaeuse.png) | **7c.** Motor into the housing with 4× **M3×6** (no longer – the motor thread is only ~4.5 mm deep) (shaft down). Push on the pinion, grub screw on the flat. Fit the electronics. Mount the housing on the posts with 2× M3×10 + washers. |
+| ![](img/bauanleitung/07d_deckel.png) | **7d.** **Set the gear mesh:** slide the housing along the slots toward the knob until the gears mesh. Back off a hair (one sheet of paper). Tighten. Close the lid with 4× **M3×8** (into the heat-set inserts). |
 
 ✅ **Test:** grinder off. Turn the dial by hand once over the full range. It must **not bind anywhere**.
 

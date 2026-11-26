@@ -63,7 +63,14 @@ as5600_w = 23.5; as5600_l = 23.5;           // common AS5600 breakout (magnet 6x
 wall = 2.4;
 floor_t = 3.0;
 lid_t = 2.4;
-lid_screw_d = 2.6;  // M3 self-tapping into PETG (or 3.2 + heat insert 4.2)
+// M3 threads in the print: heat-set inserts (default) or self-tapping screws.
+// Insert: ruthex RX-M3x5.7 or similar (M3, length 5.7 mm, OD 4.6 mm) -> 4.0 mm hole, >= 6.5 mm deep.
+heat_inserts  = true;
+insert_hole_d = 4.0;    // check your insert's data sheet (ruthex M3x5.7: 4.0 mm)
+self_tap_d    = 2.6;    // M3 screw cut directly into PETG
+m3_thread_d   = heat_inserts ? insert_hole_d : self_tap_d;
+lid_screw_d   = m3_thread_d;            // 4x in the housing bosses (lid screws M3x8)
+lid_boss_d    = heat_inserts ? 8 : 7;   // boss around the lid screw holes
 vent_w = 1.6;
 
 // Mesh adjustment: slot length along the pinion->knob line

@@ -60,7 +60,7 @@ Thanks, jaapp! Licences: software GPLv3, hardware CERN-OHL-S v2.
 | 12 | Push button (normally open) | 1 | **optional**, brew start (or the original front button) | €1 |
 | 13 | Micro switch as endstop | 1 | **optional** | €1 |
 | 14 | 22 AWG silicone wire, Dupont/JST-PH plugs, heat shrink | – | | €10 |
-| 15 | M3 screws: 4× 8 mm, 4× 6 mm, 2× 10 mm + washers, 1× 30 mm + nut, 1× M3×4 grub screw + nut | – | heat inserts M3 if you like | €5 |
+| 15 | M3 screws: 4× 6 mm (motor), 4× 8 mm (lid), 2× 10 mm + washers, 1× 30 mm + nut, 1× M3×4 grub screw + nut; 6× M3×5.7 heat-set inserts (ruthex RX-M3x5.7, 4.0 mm hole) | – | without inserts: `heat_inserts = false` | €5 (re-buy ≈ €30, see [shopping list](SHOPPING_LIST_EN.md)) |
 | 16 | Filament **PETG** (housing, brace, pinion), **TPU 95A** (strap) | – | | – |
 | 17 | Optional: **12 V / 2 A** power supply + barrel jack | 1 | **fallback** if the 12 V rail is too weak | €10 |
 

@@ -1,0 +1,28 @@
+{
+  "name": "EurekaMate",
+  "version": "0.1.0-beta",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32-S3",
+      "parts": [
+        {
+          "path": "eurekamate-v0.1.0-beta-bootloader.bin",
+          "offset": 0
+        },
+        {
+          "path": "eurekamate-v0.1.0-beta-partitions.bin",
+          "offset": 32768
+        },
+        {
+          "path": "blank_8KB.bin",
+          "offset": 57344
+        },
+        {
+          "path": "eurekamate-v0.1.0-beta.bin",
+          "offset": 131072
+        }
+      ]
+    }
+  ]
+}

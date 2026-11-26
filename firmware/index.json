@@ -1,0 +1,10 @@
+[
+  {
+    "tag": "v0.1.0-beta",
+    "version": "0.1.0-beta",
+    "display": "v0.1.0-beta",
+    "prerelease": true,
+    "manifest": "firmware/v0.1.0-beta/eurekamate-v0.1.0-beta.manifest.json",
+    "ota": "firmware/v0.1.0-beta/eurekamate-v0.1.0-beta-web-ota.bin"
+  }
+]

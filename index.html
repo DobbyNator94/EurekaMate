@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EurekaMate – Web-Flasher</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        
+        .header .subtitle {
+            color: #718096;
+            font-size: 1.1em;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 4px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        input[type="text"], input[type="file"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .status.info {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+        
+        .status.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status.error {
+            background: #fed7d7;
+            color: #c53030;
+        }
+        
+        .status.warning {
+            background: #faf089;
+            color: #744210;
+        }
+        
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .browser-support {
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .browser-support h3 {
+            color: #c53030;
+            margin-top: 0;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-list li::before {
+            content: "✓";
+            color: #48bb78;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        #browserWarning {
+            display: none;
+        }
+        .beta-warning { background: #fff4e5; border: 2px solid #ff9500; color: #7a4100; border-radius: 10px; padding: 14px 16px; margin: 0 0 18px; line-height: 1.5; }
+        .intro { background: #f4f7fb; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; line-height: 1.5; }
+        .intro .en { color: #555; font-size: 0.92em; }
+        .footer { margin-top: 24px; font-size: 0.85em; color: #777; text-align: center; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>EurekaMate</h1>
+            <div class="subtitle">Web-Flasher · Firmware installieren / Firmware installer</div>
+        </div>
+
+        <div class="beta-warning">
+            <strong>⚠️ BETA – noch nicht an echter Hardware getestet.</strong>
+            Nutzung auf eigene Gefahr. Vor Arbeiten an der Mühle immer den Netzstecker ziehen (230 V!).<br>
+            <em>EN: Beta firmware, not yet tested on real hardware. Use at your own risk. Always unplug the grinder before working on it.</em>
+        </div>
+
+        <div class="intro">
+            <p><strong>So geht's:</strong> Waveshare-Board per <strong>USB-C-Datenkabel</strong> an den PC, in
+            <strong>Chrome oder Edge (Desktop)</strong> auf „Installieren“ klicken, Port wählen, warten. Fertig.
+            Ausführliche Anleitung mit Bildern: <a href="https://github.com/DobbyNator94/EurekaMate/blob/main/docs/BAUANLEITUNG.md#8-firmware-flashen-per-web-flasher">Bauanleitung, Schritt 8</a>.</p>
+            <p class="en"><strong>EN:</strong> Connect the Waveshare board with a USB-C <em>data</em> cable, open this page in desktop Chrome/Edge,
+            click “Install”, pick the serial port and wait. Updates later: over WiFi (web UI) or Bluetooth (tab below).</p>
+        </div>
+        
+        <div id="browserWarning" class="browser-support">
+            <h3>⚠️ Browser Not Supported</h3>
+            <p>This tool requires <strong>Google Chrome</strong> for both Web Bluetooth (OTA) and Web Serial (USB) support.</p>
+            <ul>
+                <li><strong>Chrome</strong> (Desktop & Android) - Required</li>
+                <li><strong>Microsoft Edge</strong> (Desktop) - Limited support</li>
+            </ul>
+            <p><strong>Note:</strong> iOS devices and Firefox don't support the required web APIs. Use Chrome for best experience.</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('initial')">1. Installieren (USB)</button>
+            <button class="tab" onclick="showTab('ota')">Update (Bluetooth)</button>
+            <button class="tab" onclick="showTab('diagnostics')">Diagnose</button>
+        </div>
+        
+        <!-- Initial Setup Tab -->
+        <div id="initialTab" class="tab-content active">
+            <div class="section">
+                <h3>🔌 Erstinstallation per USB / First install via USB</h3>
+                <p>Für die erste Installation (oder zur Rettung). Board per USB-C anschließen, Version wählen, „Installieren“ klicken.
+                Wird kein Port angezeigt: <strong>BOOT</strong> gedrückt halten, <strong>RESET</strong> kurz drücken, BOOT loslassen, nochmal versuchen.</p>
+                
+            </div>
+            
+            <div class="form-group">
+                <label for="usbFirmwareSelect">Select Firmware Version</label>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-weight: normal; display: flex; align-items: center;">
+                        <input type="checkbox" id="showReleaseCandidate" onchange="loadReleases()" style="margin-right: 8px;" checked>
+                        Beta-Versionen anzeigen / show beta releases
+                    </label>
+                </div>
+                <select id="usbFirmwareSelect" onchange="updateManifestFirmware()">
+                    <option value="">Loading releases...</option>
+                </select>
+            </div>
+            
+            <esp-web-install-button id="usbInstallButton">
+                <button slot="activate" class="btn">⚡ Installieren / Install (USB)</button>
+                <span slot="unsupported">Dein Browser kann keine ESP-Geräte flashen. Bitte <strong>Chrome oder Edge am PC/Mac</strong> verwenden (nicht Firefox, Safari oder iPhone). / Use desktop Chrome or Edge.</span>
+                <span slot="not-allowed">Nur über HTTPS oder localhost möglich. / Only works on HTTPS or localhost.</span>
+            </esp-web-install-button>
+            
+            <div id="usbStatus" class="status info" style="display: none;">
+                Ready to flash via USB...
+            </div>
+        </div>
+        
+        <!-- OTA Update Tab -->
+        <div id="otaTab" class="tab-content">
+            <div class="section">
+                <h3>📶 Update per Bluetooth / Update over Bluetooth</h3>
+                <p>Für spätere Updates ohne Kabel (EurekaMate muss schon per USB installiert sein). Einfacher: Weboberfläche
+                <code>http://eurekamate.local</code> → Reiter „Update“.</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="firmwareSelect">Select Firmware Version (OTA)</label>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-weight: normal; display: flex; align-items: center;">
+                        <input type="checkbox" id="showReleaseCandidateOTA" onchange="loadReleases()" style="margin-right: 8px;" checked>
+                        Beta-Versionen anzeigen / show beta releases
+                    </label>
+                </div>
+                <select id="firmwareSelect" onchange="updateOtaSelectedFirmware()">
+                    <option value="">Loading releases...</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="deviceName">Device Name</label>
+                <input type="text" id="deviceName" value="EurekaMate" readonly>
+            </div>
+            
+            <button class="btn" id="connectFlashBtn" onclick="connectAndFlash()">Connect & Flash Firmware</button>
+            
+            <div id="otaSelectedFile" class="status info" style="display: none;">
+                No firmware selected
+            </div>
+            
+            <div id="status" class="status info" style="display: none;">
+                Ready to connect...
+            </div>
+            
+            <div class="progress" id="progressContainer" style="display: none;">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <!-- Diagnostics Tab -->
+        <div id="diagnosticsTab" class="tab-content">
+            <div class="section">
+                <h3>🔍 Diagnostic Report</h3>
+                <p>Generate a comprehensive diagnostic report from your device to attach to GitHub issues for troubleshooting.</p>
+
+                <div class="form-group">
+                    <button class="btn" id="getDiagnosticsBtn" onclick="getDiagnosticReport()">
+                        <span>📋</span> Connect & Get Diagnostics
+                    </button>
+                </div>
+
+                <div id="diagnosticsReportContainer" style="display: none;">
+                    <label for="diagnosticsReport">Diagnostic Report:</label>
+                    <textarea id="diagnosticsReport" readonly style="width: 100%; min-height: 400px; font-family: 'Courier New', monospace; font-size: 12px; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc;"></textarea>
+
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn" onclick="copyDiagnosticReport()">
+                            <span>📋</span> Copy to Clipboard
+                        </button>
+                        <button class="btn" onclick="downloadDiagnosticReport()">
+                            <span>💾</span> Download Report
+                        </button>
+                    </div>
+                </div>
+
+                <div id="diagnosticsStatus"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">EurekaMate · <a href="https://github.com/DobbyNator94/EurekaMate">GitHub</a> ·
+    basiert auf <a href="https://github.com/jaapp/smart-grind-by-weight">smart-grind-by-weight</a> von jaapp (GPLv3) ·
+    USB-Flashen mit <a href="https://esphome.github.io/esp-web-tools/">ESP Web Tools</a></div>
+    <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+    <script src="flasher.js"></script>
+</body>
+</html>
